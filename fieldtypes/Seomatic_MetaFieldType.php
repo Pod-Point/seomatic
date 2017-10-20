@@ -210,6 +210,11 @@ class Seomatic_MetaFieldType extends BaseFieldType
             return array(
                 'assetSources' => AttributeType::Mixed,
 
+                'seoShowIdentity' => array(AttributeType::Bool, 'default' => true),
+                'seoShowWebsite' => array(AttributeType::Bool, 'default' => true),
+                'seoShowPlace' => array(AttributeType::Bool, 'default' => true),
+                'seoShowMainEntity' => array(AttributeType::Bool, 'default' => true),
+
                 'seoMainEntityCategory' => array(AttributeType::String, 'default' => 'CreativeWork'),
                 'seoMainEntityOfPage' => array(AttributeType::String, 'default' => 'WebPage'),
 
@@ -470,6 +475,11 @@ class Seomatic_MetaFieldType extends BaseFieldType
         if (!$value)
         {
             $value = new Seomatic_MetaFieldModel();
+
+            $value->seoShowIdentity = $this->getSettings()->seoShowIdentity;
+            $value->seoShowWebsite = $this->getSettings()->seoShowWebsite;
+            $value->seoShowPlace = $this->getSettings()->seoShowPlace;
+            $value->seoShowMainEntity = $this->getSettings()->seoShowMainEntity;
 
             $value->seoMainEntityCategory = $this->getSettings()->seoMainEntityCategory;
             $value->seoMainEntityOfPage = $this->getSettings()->seoMainEntityOfPage;

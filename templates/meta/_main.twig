@@ -25,6 +25,43 @@
 }) }}
 
 <div class="field">
+    {{ forms.lightswitchField({
+        id: "seoShowIdentity",
+        label: "Include identity?"|t,
+        name: "seoShowIdentity",
+        instructions: "Whether to show the Google Structured Data Identity JSON-LD tag"|t,
+        on: meta.seoShowIdentity,
+    }) }}
+</div>
+<div class="field">
+    {{ forms.lightswitchField({
+        id: "seoShowWebsite",
+        label: "Include website?"|t,
+        name: "seoShowWebsite",
+        instructions: "Whether to show the Google Structured Data Website JSON-LD tag"|t,
+        on: meta.seoShowWebsite,
+    }) }}
+</div>
+<div class="field">
+    {{ forms.lightswitchField({
+        id: "seoShowPlace",
+        label: "Include place?"|t,
+        name: "seoShowPlace",
+        instructions: "Whether to show the Google Structured Data Place JSON-LD tag"|t,
+        on: meta.seoShowPlace,
+    }) }}
+</div>
+<div class="field">
+    {{ forms.lightswitchField({
+        id: "seoShowMainEntity",
+        label: "Include main entity?"|t,
+        name: "seoShowMainEntity",
+        instructions: "Whether to show the Google Structured Data Main Entity JSON-LD tag"|t,
+        on: meta.seoShowMainEntity,
+    }) }}
+</div>
+
+<div class="field">
     <div class="heading">
         <label for="seoMainEntityOfPage">{{ "Main Entity of Page"|t}}{% if craft.isLocalized and meta.locale %}<span class="locale">{{ meta.locale }}</span>{% endif %}</label>
         <div class="instructions"><p>{{ "The Main Entity of Page is a more specific, additional type that describes this page.  This additional JSON-LD structured data entity will be added to your page, more specifically describing the page's content.  It is accessible via the <code>seomaticMainEntityOfPage</code> Twig variable, should you wish to modify or add to it." |t |raw}}</p></div>

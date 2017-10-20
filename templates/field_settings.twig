@@ -16,7 +16,46 @@
         }, '<p class="error">' ~ "No asset sources exist yet."|t ~ '</p>') }}
     {% endif %}
 
-    <!-- Main Eneity of Page -->
+    <!-- Optional Google Structured Data -->
+
+    <div class="field">
+        {{ forms.lightswitchField({
+            id: "seoShowIdentity",
+            label: "Include identity?"|t,
+            name: "seoShowIdentity",
+            instructions: "Whether to show the Google Structured Data Identity JSON-LD tag"|t,
+            on: settings.seoShowIdentity,
+        }) }}
+    </div>
+    <div class="field">
+        {{ forms.lightswitchField({
+            id: "seoShowWebsite",
+            label: "Include website?"|t,
+            name: "seoShowWebsite",
+            instructions: "Whether to show the Google Structured Data Website JSON-LD tag"|t,
+            on: settings.seoShowWebsite,
+        }) }}
+    </div>
+    <div class="field">
+        {{ forms.lightswitchField({
+            id: "seoShowPlace",
+            label: "Include place?"|t,
+            name: "seoShowPlace",
+            instructions: "Whether to show the Google Structured Data Place JSON-LD tag"|t,
+            on: settings.seoShowPlace,
+        }) }}
+    </div>
+    <div class="field">
+        {{ forms.lightswitchField({
+            id: "seoShowMainEntity",
+            label: "Include main entity?"|t,
+            name: "seoShowMainEntity",
+            instructions: "Whether to show the Google Structured Data Main Entity JSON-LD tag"|t,
+            on: settings.seoShowMainEntity,
+        }) }}
+    </div>
+
+    <!-- Main Entity of Page -->
 
     <div class="field">
     <div class="heading">

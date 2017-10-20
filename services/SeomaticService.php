@@ -808,6 +808,10 @@ class SeomaticService extends BaseApplicationComponent
         if ($entryMeta)
         {
             $meta = array();
+            $meta['seoShowIdentity'] = $entryMeta->seoShowIdentity;
+            $meta['seoShowWebsite'] = $entryMeta->seoShowWebsite;
+            $meta['seoShowPlace'] = $entryMeta->seoShowPlace;
+            $meta['seoShowMainEntity'] = $entryMeta->seoShowMainEntity;
             $meta['seoMainEntityCategory'] = $entryMeta->seoMainEntityCategory;
             $meta['seoMainEntityOfPage'] = $entryMeta->seoMainEntityOfPage;
             $meta['seoTitle'] = $entryMeta->seoTitle;
@@ -1181,6 +1185,10 @@ class SeomaticService extends BaseApplicationComponent
         unset($siteMeta['siteSeoFacebookImageTransform']);
         unset($siteMeta['siteSeoTwitterImageTransform']);
 
+        unset($meta['seoShowIdentity']);
+        unset($meta['seoShowWebsite']);
+        unset($meta['seoShowPlace']);
+        unset($meta['seoShowMainEntity']);
         unset($meta['seoMainEntityCategory']);
         unset($meta['seoMainEntityOfPage']);
         unset($meta['twitterCardType']);
@@ -2535,6 +2543,10 @@ function parseAsTemplate($templateStr, $element)
                 $meta['seoTitle'] = $this->parseAsTemplate($metaRecord->seoTitle, $element);
                 $meta['seoDescription'] = $this->parseAsTemplate($metaRecord->seoDescription, $element);
                 $meta['seoKeywords'] = $this->parseAsTemplate($metaRecord->seoKeywords, $element);
+                $meta['seoShowIdentity'] = $metaRecord->seoShowIdentity;
+                $meta['seoShowWebsite'] = $metaRecord->seoShowWebsite;
+                $meta['seoShowPlace'] = $metaRecord->seoShowPlace;
+                $meta['seoShowMainEntity'] = $metaRecord->seoShowMainEntity;
                 $meta['seoMainEntityCategory'] = $metaRecord->seoMainEntityCategory;
                 $meta['seoMainEntityOfPage'] = $metaRecord->seoMainEntityOfPage;
 
