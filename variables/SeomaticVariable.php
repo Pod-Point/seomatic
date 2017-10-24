@@ -302,6 +302,7 @@ class SeomaticVariable
             if ($element)
             {
                 $entryMeta = craft()->seomatic->getMetaFromElement($element);
+
                 if ($entryMeta)
                     craft()->seomatic->setEntryMeta($entryMeta, $element->url);
             }

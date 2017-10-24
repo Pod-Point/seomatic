@@ -134,6 +134,23 @@ class Seomatic_MetaFieldType extends BaseFieldType
 
         $variables['transformsList'] = craft()->seomatic->getTransformsList();
 
+        // Set section defaults where appropriate
+        $section = isset($this->element) && isset($this->element->section) ? $this->element->section->name : '*';
+        $sectionsMetaDefaults = craft()->config->get('sectionsMetaDefaults', 'seomatic');
+        $sectionMetaDefaults = array_get($sectionsMetaDefaults, $section, array_get($sectionsMetaDefaults, '*', []));
+
+        if ($sectionMetaDefaults) {
+            foreach($sectionMetaDefaults as $fieldName => $fieldValue) {
+                // New entries
+                if (!$this->element->id) {
+                    $variables['meta']->$fieldName = $fieldValue;
+                // Existing entries - only set fields not already set
+                } elseif (!isset($variables['meta']->$fieldName) || is_null($variables['meta']->$fieldName)) {
+                    $variables['meta']->$fieldName = $fieldValue;
+                }
+            }
+        }
+
 /* -- Extract a list of the other plain text fields that are in this entry's layout */
 
         $fieldList = array('title' => 'Title');
@@ -346,6 +363,13 @@ class Seomatic_MetaFieldType extends BaseFieldType
             $value = $this->prepValue($value);
         }
 
+/* -- Ensure values of light switch set to false are saved */
+        $fieldSettings = $this->defineSettings();
+        foreach ($value as $fieldName => $fieldValue) {
+            if (array_has($fieldSettings, $fieldName) && $fieldSettings[$fieldName][0] === 'bool' && $fieldValue === '') {
+                $value[$fieldName] = '0';
+            }
+        }
 
 /* -- Handle pulling values from other fields */
 

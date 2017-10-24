@@ -103,6 +103,63 @@ return array(
     "siteDevModeTitle" => '[devMode]',
 
 /**
+ * This allows you set default meta settings on your website on a per-section basis.
+ * Use '*' as the key to apply to any other section not specifically included.
+ */
+
+    'sectionsMetaDefaults' => array(
+        'Homepage' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Organization',
+        ],
+        'About Us' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Organization',
+        ],
+        'Contact Us' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Organization',
+        ],
+        'Product Pages' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => true,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Product',
+        ],
+        'Electric Car News' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Article',
+        ],
+        'Landing Pages' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Website',
+        ],
+        '*' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Website',
+        ],
+    ),
+
+/**
  * This allows you to globally override the meta settings on your website.  WARNING:
  * anything you set here will REPLACE the meta settings globally.  You might wish to
  * use this, for instance, to set 'robots' to be 'none' on development/staging to

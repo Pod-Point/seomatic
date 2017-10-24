@@ -89,6 +89,7 @@ class SeomaticService extends BaseApplicationComponent
     if ($entry)
     {
        $entryMeta = craft()->seomatic->getMetaFromElement($entry);
+
        if ($entryMeta)
             craft()->seomatic->setEntryMeta($entryMeta, "");
     }
@@ -244,8 +245,13 @@ class SeomaticService extends BaseApplicationComponent
 
     public function renderIdentity($metaVars, $locale, $isPreview=false)
     {
-        $this->sanitizeMetaVars($metaVars);
-        $htmlText = $this->renderJSONLD($metaVars['seomaticIdentity'], $isPreview);
+        $htmlText = '';
+
+        if (array_get($metaVars, 'seomaticMeta.seoShowIdentity', false)) {
+            $this->sanitizeMetaVars($metaVars);
+            $htmlText = $this->renderJSONLD($metaVars['seomaticIdentity'], $isPreview);
+        }
+
         return $htmlText;
     } /* -- renderIdentity */
 
@@ -255,9 +261,14 @@ class SeomaticService extends BaseApplicationComponent
 
     public function renderWebsite($metaVars, $locale, $isPreview=false)
     {
-        $this->sanitizeMetaVars($metaVars);
-        $webSite = $this->getWebSiteJSONLD($metaVars, $locale);
-        $htmlText = $this->renderJSONLD($webSite, $isPreview);
+        $htmlText = '';
+
+        if (array_get($metaVars, 'seomaticMeta.seoShowWebsite', false)) {
+            $this->sanitizeMetaVars($metaVars);
+            $webSite = $this->getWebSiteJSONLD($metaVars, $locale);
+            $htmlText = $this->renderJSONLD($webSite, $isPreview);
+        }
+
         return $htmlText;
     } /* -- renderWebsite */
 
@@ -269,7 +280,7 @@ class SeomaticService extends BaseApplicationComponent
     {
         $htmlText = "";
 
-        if (isset($metaVars['seomaticMainEntityOfPage']))
+        if (array_get($metaVars, 'seomaticMeta.seoShowMainEntity', false) && isset($metaVars['seomaticMainEntityOfPage']))
         {
             $this->sanitizeMetaVars($metaVars);
             $htmlText = $this->renderJSONLD($metaVars['seomaticMainEntityOfPage'], $isPreview);
@@ -302,7 +313,8 @@ class SeomaticService extends BaseApplicationComponent
     public function renderPlace($metaVars, $locale, $isPreview=false)
     {
         $htmlText = "";
-        if (($metaVars['seomaticIdentity']['type'] != "Person") && (isset($metaVars['seomaticIdentity']['location'])))
+
+        if (array_get($metaVars, 'seomaticMeta.seoShowPlace', false) && ($metaVars['seomaticIdentity']['type'] != 'Person') && (isset($metaVars['seomaticIdentity']['location'])))
         {
             $this->sanitizeMetaVars($metaVars);
             $place = $metaVars['seomaticIdentity']['location'];
@@ -318,6 +330,7 @@ class SeomaticService extends BaseApplicationComponent
                 }
             }
         }
+
         return $htmlText;
     } /* -- renderPlace */
 
@@ -582,7 +595,6 @@ class SeomaticService extends BaseApplicationComponent
     public function getMetaFromElement($element)
     {
 /* -- See if there is an 'entry' automagically put into this template, and if it contains an Seomatic_Meta */
-
         $entryMeta = null;
         if (isset($element) && $element)
         {
@@ -594,6 +606,7 @@ class SeomaticService extends BaseApplicationComponent
                 $elemType == "Marketplace_Product" ||
                 $elemType == ElementType::Category)
 */
+
             if ((isset($element->content) && is_object($element->content)) &&
                 (isset($element->content->attributes)) && (is_object($element->content->attributes) || is_array($element->content->attributes)))
             {
@@ -608,6 +621,7 @@ class SeomaticService extends BaseApplicationComponent
                             {
                                 $entryMeta = $value;
                                 $this->lastElement = $element;
+
         /* -- If this is a Commerce Product, fill in some additional info */
 
                                 if (($elemType == "Commerce_Product" || is_a($element, "Commerce\\Base\\Purchasable")) && craft()->config->get("renderCommerceProductJSONLD", "seomatic"))
@@ -663,6 +677,7 @@ class SeomaticService extends BaseApplicationComponent
                 }
             }
         }
+
     return $entryMeta;
     } /* -- getMetaFromElement */
 
@@ -800,7 +815,6 @@ class SeomaticService extends BaseApplicationComponent
 
     public function setEntryMeta($entryMeta, $entryMetaUrl)
     {
-
         $meta = null;
 
 /* -- If $entryMeta was passed in, merge it with our array */
@@ -808,7 +822,7 @@ class SeomaticService extends BaseApplicationComponent
         if ($entryMeta)
         {
             $meta = array();
-            $meta['seoShowIdentity'] = $entryMeta->seoShowIdentity;
+            $meta['seoShowIdentity'] = $entryMeta['seoShowIdentity'];
             $meta['seoShowWebsite'] = $entryMeta->seoShowWebsite;
             $meta['seoShowPlace'] = $entryMeta->seoShowPlace;
             $meta['seoShowMainEntity'] = $entryMeta->seoShowMainEntity;
@@ -880,11 +894,17 @@ class SeomaticService extends BaseApplicationComponent
             {
                 $this->entrySeoCommerceVariants = $entryMeta->seoCommerceVariants;
             }
-            $meta = array_filter($meta);
+
+            // Remove null and empty values but preserve false
+            $meta = array_filter($meta, function($metaValue) {
+                return isset($metaValue) && !is_null($metaValue) && $metaValue !== '';
+            });
+
             if (!isset($meta['seoMainEntityOfPage']))
                 $meta['seoMainEntityOfPage'] ="";
         }
         $this->entryMeta = $meta;
+
         return $meta;
     } /* -- setEntryMeta */
 
@@ -1093,9 +1113,17 @@ class SeomaticService extends BaseApplicationComponent
         if (!$locale)
             $locale = craft()->language;
 
+        $meta = [];
+
+/* -- Get section-level defaults config settings */
+
+        $section = isset($this->lastElement) && isset($this->lastElement->section) ? $this->lastElement->section->name : '*';
+        $sectionsMetaDefaults = craft()->config->get('sectionsMetaDefaults', 'seomatic');
+        $meta = array_get($sectionsMetaDefaults, $section, array_get($sectionsMetaDefaults, '*', []));
+
 /* -- Load in our globals */
 
-        $meta = $this->getMeta($forTemplate);
+        $meta = array_merge($meta, $this->getMeta($forTemplate));
         $siteMeta = $this->getSiteMeta($locale);
         $identity = $this->getIdentity($locale);
         $social = $this->getSocial($locale);
@@ -1185,10 +1213,6 @@ class SeomaticService extends BaseApplicationComponent
         unset($siteMeta['siteSeoFacebookImageTransform']);
         unset($siteMeta['siteSeoTwitterImageTransform']);
 
-        unset($meta['seoShowIdentity']);
-        unset($meta['seoShowWebsite']);
-        unset($meta['seoShowPlace']);
-        unset($meta['seoShowMainEntity']);
         unset($meta['seoMainEntityCategory']);
         unset($meta['seoMainEntityOfPage']);
         unset($meta['twitterCardType']);
