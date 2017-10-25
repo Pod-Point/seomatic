@@ -521,6 +521,7 @@ class SeomaticController extends BaseController
 
     public function actionEditSiteMeta(array $variables = array())
     {
+
         if (isset($variables['locale']))
             $locale = $variables['locale'];
         else
@@ -601,6 +602,7 @@ class SeomaticController extends BaseController
 
     public function actionEditIdentity(array $variables = array())
     {
+
         if (isset($variables['locale']))
             $locale = $variables['locale'];
         else
@@ -646,6 +648,7 @@ class SeomaticController extends BaseController
 
     public function actionEditSocial(array $variables = array())
     {
+
         if (isset($variables['locale']))
             $locale = $variables['locale'];
         else
@@ -665,6 +668,7 @@ class SeomaticController extends BaseController
 
     public function actionEditCreator(array $variables = array())
     {
+
         if (isset($variables['locale']))
             $locale = $variables['locale'];
         else

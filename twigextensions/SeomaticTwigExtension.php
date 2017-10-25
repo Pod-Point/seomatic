@@ -33,7 +33,6 @@ class SeomaticTwigExtension extends \Twig_Extension
             $element = craft()->urlManager->getMatchedElement();
             $entryMeta = craft()->seomatic->getMetaFromElement($element);
             $entryMetaUrl = "";
-            
             if ($entryMeta)
                 craft()->seomatic->setEntryMeta($entryMeta, $entryMetaUrl);
             $currentTemplate = $this->_get_current_template_path();

@@ -5,6 +5,7 @@ use \crodas\TextRank\Config;
 use \crodas\TextRank\TextRank;
 use \crodas\TextRank\Summary;
 use \crodas\TextRank\Stopword;
+use Craft\Seomatic_MetaModel;
 
 class SeomaticService extends BaseApplicationComponent
 {
@@ -89,7 +90,6 @@ class SeomaticService extends BaseApplicationComponent
     if ($entry)
     {
        $entryMeta = craft()->seomatic->getMetaFromElement($entry);
-
        if ($entryMeta)
             craft()->seomatic->setEntryMeta($entryMeta, "");
     }
@@ -606,7 +606,6 @@ class SeomaticService extends BaseApplicationComponent
                 $elemType == "Marketplace_Product" ||
                 $elemType == ElementType::Category)
 */
-
             if ((isset($element->content) && is_object($element->content)) &&
                 (isset($element->content->attributes)) && (is_object($element->content->attributes) || is_array($element->content->attributes)))
             {
@@ -621,7 +620,6 @@ class SeomaticService extends BaseApplicationComponent
                             {
                                 $entryMeta = $value;
                                 $this->lastElement = $element;
-
         /* -- If this is a Commerce Product, fill in some additional info */
 
                                 if (($elemType == "Commerce_Product" || is_a($element, "Commerce\\Base\\Purchasable")) && craft()->config->get("renderCommerceProductJSONLD", "seomatic"))
@@ -677,7 +675,6 @@ class SeomaticService extends BaseApplicationComponent
                 }
             }
         }
-
     return $entryMeta;
     } /* -- getMetaFromElement */
 
@@ -822,7 +819,7 @@ class SeomaticService extends BaseApplicationComponent
         if ($entryMeta)
         {
             $meta = array();
-            $meta['seoShowIdentity'] = $entryMeta['seoShowIdentity'];
+            $meta['seoShowIdentity'] = $entryMeta->seoShowIdentity;
             $meta['seoShowWebsite'] = $entryMeta->seoShowWebsite;
             $meta['seoShowPlace'] = $entryMeta->seoShowPlace;
             $meta['seoShowMainEntity'] = $entryMeta->seoShowMainEntity;
@@ -895,16 +892,16 @@ class SeomaticService extends BaseApplicationComponent
                 $this->entrySeoCommerceVariants = $entryMeta->seoCommerceVariants;
             }
 
-            // Remove null and empty values but preserve false
-            $meta = array_filter($meta, function($metaValue) {
-                return isset($metaValue) && !is_null($metaValue) && $metaValue !== '';
-            });
+            // Remove null and empty values but preserve false boolean values from light switch fields (which are stored as empty strings by Craft)
+            $metaModel = new Seomatic_MetaModel();
+            $meta = array_filter($meta, function($metaValue, $metaField) use ($metaModel) {
+                return !is_null($metaValue) && ($metaValue !== '' || array_get($metaModel->attributeConfigs, "{$metaField}.type") === 'bool');
+            }, ARRAY_FILTER_USE_BOTH);
 
             if (!isset($meta['seoMainEntityOfPage']))
                 $meta['seoMainEntityOfPage'] ="";
         }
         $this->entryMeta = $meta;
-
         return $meta;
     } /* -- setEntryMeta */
 

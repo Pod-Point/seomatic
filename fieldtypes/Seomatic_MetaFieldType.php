@@ -363,14 +363,6 @@ class Seomatic_MetaFieldType extends BaseFieldType
             $value = $this->prepValue($value);
         }
 
-/* -- Ensure values of light switch set to false are saved */
-        $fieldSettings = $this->defineSettings();
-        foreach ($value as $fieldName => $fieldValue) {
-            if (array_has($fieldSettings, $fieldName) && $fieldSettings[$fieldName][0] === 'bool' && $fieldValue === '') {
-                $value[$fieldName] = '0';
-            }
-        }
-
 /* -- Handle pulling values from other fields */
 
         $element = $this->element;
