@@ -1133,6 +1133,7 @@ class SeomaticController extends BaseController
         $record->facebookHandle = craft()->request->getPost('facebookHandle', $record->facebookHandle);
         $record->facebookProfileId = craft()->request->getPost('facebookProfileId', $record->facebookProfileId);
         $record->facebookAppId = craft()->request->getPost('facebookAppId', $record->facebookAppId);
+        $record->facebookAdminId = craft()->request->getPost('facebookAdminId', $record->facebookAdminId);
         $record->linkedInHandle = craft()->request->getPost('linkedInHandle', $record->linkedInHandle);
         $record->googlePlusHandle = craft()->request->getPost('googlePlusHandle', $record->googlePlusHandle);
         $record->youtubeHandle = craft()->request->getPost('youtubeHandle', $record->youtubeHandle);

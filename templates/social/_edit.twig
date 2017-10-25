@@ -114,6 +114,17 @@
                 }) }}
 
                 {{ forms.textField({
+                    label: "Facebook Admin ID"|t,
+                    instructions: ("Your Facebook Admin ID.") |t |raw,
+                    id: "facebookAdminId",
+                    class: 'nicetext',
+                    name: "facebookAdminId",
+                    value: social.facebookAdminId,
+                    required: false,
+                    locale:  social.locale,
+                }) }}
+
+                {{ forms.textField({
                     label: "Wikipedia URL"|t,
                     instructions: ("The full URL to the Wikipedia.com entry that is about this entity.  <a href='http://searchengineland.com/leveraging-wikidata-gain-google-knowledge-graph-result-219706' target='_blank'>Learn More</a>") |t |raw,
                     id: "wikipediaUrl",

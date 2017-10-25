@@ -945,7 +945,7 @@ class SeomaticService extends BaseApplicationComponent
                         $twitterCard['creator'] = "";
                     break;
                 }
-                $twitterCard['title'] = $titlePrefix . $meta['seoTitle'] . $titleSuffix;
+                $twitterCard['title'] = $meta['seoTitle'];
                 $twitterCard['description'] = $meta['seoDescription'];
 
 /* -- Swap in the seoImageId for the actual asset */
@@ -988,7 +988,7 @@ class SeomaticService extends BaseApplicationComponent
                 $openGraph['locale'] = $openGraph['locale'] . "_" . strtoupper($openGraph['locale']);
 
             $openGraph['url'] = $meta['canonicalUrl'];
-            $openGraph['title'] = $titlePrefix . $meta['seoTitle'] . $titleSuffix;
+            $openGraph['title'] = $meta['seoTitle'];
             $openGraph['description'] = $meta['seoDescription'];
 
 /* -- Swap in the seoImageId for the actual asset */
@@ -1896,6 +1896,7 @@ class SeomaticService extends BaseApplicationComponent
         $social['facebookHandle'] = $settings['facebookHandle'];
         $social['facebookProfileId'] = $settings['facebookProfileId'];
         $social['facebookAppId'] = $settings['facebookAppId'];
+        $social['facebookAdminId'] = $settings['facebookAdminId'];
         $social['linkedInHandle'] = $settings['linkedInHandle'];
         $social['googlePlusHandle'] = $settings['googlePlusHandle'];
         $social['youtubeHandle'] = $settings['youtubeHandle'];
@@ -2213,6 +2214,8 @@ class SeomaticService extends BaseApplicationComponent
     {
 
         $mainEntityOfPageJSONLD = array();
+        $element = $this->lastElement ? craft()->elements->getElementById($this->lastElement->id, null, $locale) : null;
+
         if (isset($meta['seoMainEntityCategory']) && isset($meta['seoMainEntityOfPage']))
         {
             $entityCategory = $meta['seoMainEntityCategory'];
@@ -2348,16 +2351,80 @@ class SeomaticService extends BaseApplicationComponent
                     unset($mainEntityOfPageJSONLD['publisher']['servesCuisine']);
                     unset($mainEntityOfPageJSONLD['publisher']['menu']);
                     unset($mainEntityOfPageJSONLD['publisher']['acceptsReservations']);
+
+                    if (array_get($meta, 'seoMainEntityOfPage') === 'Article') {
+                        $mainEntityOfPageJSONLD['mainEntityOfPage'] = [
+                            'type' => 'WebPage',
+                            'id' => 'https://google.com/article',
+                        ];
+
+                        $articleImage = array_get($mainEntityOfPageJSONLD, 'author.image');
+                        if ($articleImage) {
+                            $mainEntityOfPageJSONLD['image'] = $articleImage;
+                        }
+
+                        unset($mainEntityOfPageJSONLD['author']);
+                        $author = $element ? $element->getAuthor() : null;
+                        if ($author) {
+                            $mainEntityOfPageJSONLD['author'] = [
+                                'type' => 'Person',
+                                'name' => $author->firstName . ' ' . $author->lastName,
+                            ];
+                        }
+                    }
                 }
                 break;
 
-                case "Event":
+            case "Event":
                 {
                 }
                 break;
 
-                case "Product":
+            case "Organization":
                 {
+                    $mainEntityOfPageJSONLD['name'] = array_get($identity, 'name');
+                    $mainEntityOfPageJSONLD['logo'] = array_get($identity, 'name');
+                    $mainEntityOfPageJSONLD['sameAs'] = array_get($identity, 'sameAs');
+                    $mainEntityOfPageJSONLD['logo'] = array_get($identity, 'logo.url');
+                    $mainEntityOfPageJSONLD['contactPoint'] = array_get($identity, 'contactPoint');
+
+                    $country = array_get($identity, 'address.addressCountry');
+                    if (array_get($mainEntityOfPageJSONLD, 'contactPoint') && $country) {
+                        array_walk($mainEntityOfPageJSONLD['contactPoint'], function(&$contactPoint) use ($country) {
+                            $contactPoint['areaServed'] = $country;
+                        });
+                    }
+                }
+                break;
+
+            case "Product":
+                {
+                    $mainEntityOfPageJSONLD['name'] = $element ? $element->productName : '';
+                    $mainEntityOfPageJSONLD['description'] = $element ? $element->productDescription : '';
+                    $mainEntityOfPageJSONLD['image'] = $element && $element->productImage ? $element->productImage->first()->getUrl() : '';
+
+                        $mainEntityOfPageJSONLD['brand'] = [
+                        'type' => 'Thing',
+                        'name' => array_get($identity, 'name'),
+                    ];
+
+                    $mainEntityOfPageJSONLD['aggregateRating'] = [
+                        'type' => 'AggregateRating',
+                        'ratingValue' => '4.8', // TODO: fetch from Reviews.co.uk API
+                        'reviewCount' => '2500', // TODO: fetch from Reviews.co.uk API
+                    ];
+
+                    $mainEntityOfPageJSONLD['offers'] = [
+                        'type' => 'Offer',
+                        'priceCurrency' => $element->productCurrency,
+                        'price' => $element->productPrice,
+                        'itemCondition' => "http://schema.org/NewCondition",
+                        'availability' => "http://schema.org/InStock",
+                        'seller' => [
+                            'type' => 'Organization',
+                            'name' => array_get($identity, 'name'),
+                        ],
+                    ];
                 }
                 break;
             }
@@ -2985,16 +3052,12 @@ function parseAsTemplate($templateStr, $element)
         } else {
             $title = $seomaticMeta['seoTitle'];
         }
-        if (isset($seomaticMeta['twitter']))
-            $seomaticMeta['twitter']['title'] = $titlePrefix . $title . $titleSuffix;
 
         if (isset($seomaticMeta['og']['title'])) {
             $title = $seomaticMeta['og']['title'];
         } else {
             $title = $seomaticMeta['seoTitle'];
         }
-        if (isset($seomaticMeta['og']))
-            $seomaticMeta['og']['title'] = $titlePrefix . $title . $titleSuffix;
 
 /* -- Truncate seoTitle, seoDescription, and seoKeywords to recommended values */
 
