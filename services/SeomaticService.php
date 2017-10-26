@@ -2442,11 +2442,19 @@ class SeomaticService extends BaseApplicationComponent
                             ],
                         ];
 
-                        $mainEntityOfPageJSONLD['aggregateRating'] = [
-                            'type' => 'AggregateRating',
-                            'ratingValue' => '4.8', // TODO: fetch from Reviews.co.uk API
-                            'reviewCount' => '2500', // TODO: fetch from Reviews.co.uk API
-                        ];
+                        if (isset($element->productCategory) && $element->productCategory->value === 'homeCharge') {
+                            $reviewsStats = craft()->reviewsApi_reviews->getTotalReviewStats();
+                            $reviewsAverageRating = array_get($reviewsStats, 'average_rating');
+                            $reviewsTotalNumber = array_get($reviewsStats, 'total_reviews');
+
+                            if ($reviewsAverageRating && $reviewsTotalNumber) {
+                                $mainEntityOfPageJSONLD['aggregateRating'] = [
+                                    'type' => 'AggregateRating',
+                                    'ratingValue' => (string) round($reviewsAverageRating, 1),
+                                    'reviewCount' => (string) number_format($reviewsTotalNumber),
+                                ];
+                            }
+                        }
                     }
                 }
                 break;
