@@ -278,7 +278,7 @@ class SeomaticService extends BaseApplicationComponent
 
     public function renderMainEntityOfPage($metaVars, $locale, $isPreview=false)
     {
-        $htmlText = "";
+        $htmlText = '';
 
         if (array_get($metaVars, 'seomaticMeta.seoShowMainEntity', false) && isset($metaVars['seomaticMainEntityOfPage']))
         {
@@ -312,7 +312,7 @@ class SeomaticService extends BaseApplicationComponent
 
     public function renderPlace($metaVars, $locale, $isPreview=false)
     {
-        $htmlText = "";
+        $htmlText = '';
 
         if (array_get($metaVars, 'seomaticMeta.seoShowPlace', false) && ($metaVars['seomaticIdentity']['type'] != 'Person') && (isset($metaVars['seomaticIdentity']['location'])))
         {
@@ -892,11 +892,7 @@ class SeomaticService extends BaseApplicationComponent
                 $this->entrySeoCommerceVariants = $entryMeta->seoCommerceVariants;
             }
 
-            // Remove null and empty values but preserve false boolean values from light switch fields (which are stored as empty strings by Craft)
-            $metaModel = new Seomatic_MetaModel();
-            $meta = array_filter($meta, function($metaValue, $metaField) use ($metaModel) {
-                return !is_null($metaValue) && ($metaValue !== '' || array_get($metaModel->attributeConfigs, "{$metaField}.type") === 'bool');
-            }, ARRAY_FILTER_USE_BOTH);
+            $meta = $this->removeNullAndEmptyExceptBooleanFields($meta);
 
             if (!isset($meta['seoMainEntityOfPage']))
                 $meta['seoMainEntityOfPage'] ="";
@@ -904,6 +900,22 @@ class SeomaticService extends BaseApplicationComponent
         $this->entryMeta = $meta;
         return $meta;
     } /* -- setEntryMeta */
+
+    /**
+     * Strips out meta fields that have null or empty values - except boolean light switch fields,
+     * where Craft stores false/off as an empty string
+     *
+     * @param array $meta
+     * @return array
+     */
+    private function removeNullAndEmptyExceptBooleanFields(array $meta)
+    {
+        $metaModel = new Seomatic_MetaModel();
+
+        return array_filter($meta, function($metaValue, $metaField) use ($metaModel) {
+            return !is_null($metaValue) && ($metaValue !== '' || array_get($metaModel->attributeConfigs, "{$metaField}.type") === 'bool');
+        }, ARRAY_FILTER_USE_BOTH);
+    }
 
 /* --------------------------------------------------------------------------------
     Set the Twitter Cards and Open Graph arrays for the meta
@@ -2399,32 +2411,34 @@ class SeomaticService extends BaseApplicationComponent
 
             case "Product":
                 {
-                    $mainEntityOfPageJSONLD['name'] = $element ? $element->productName : '';
-                    $mainEntityOfPageJSONLD['description'] = $element ? $element->productDescription : '';
-                    $mainEntityOfPageJSONLD['image'] = $element && $element->productImage ? $element->productImage->first()->getUrl() : '';
+                    if ($element && isset($element->productName) && isset($element->productDescription) && isset($element->productCurrency) && isset($element->productPrice)) {
+                        $mainEntityOfPageJSONLD['name'] = $element->productName;
+                        $mainEntityOfPageJSONLD['description'] = $element->productDescription;
+                        $mainEntityOfPageJSONLD['image'] = $element->productImage ? $element->productImage->first()->getUrl() : '';
 
                         $mainEntityOfPageJSONLD['brand'] = [
-                        'type' => 'Thing',
-                        'name' => array_get($identity, 'name'),
-                    ];
-
-                    $mainEntityOfPageJSONLD['aggregateRating'] = [
-                        'type' => 'AggregateRating',
-                        'ratingValue' => '4.8', // TODO: fetch from Reviews.co.uk API
-                        'reviewCount' => '2500', // TODO: fetch from Reviews.co.uk API
-                    ];
-
-                    $mainEntityOfPageJSONLD['offers'] = [
-                        'type' => 'Offer',
-                        'priceCurrency' => $element->productCurrency,
-                        'price' => $element->productPrice,
-                        'itemCondition' => "http://schema.org/NewCondition",
-                        'availability' => "http://schema.org/InStock",
-                        'seller' => [
-                            'type' => 'Organization',
+                            'type' => 'Thing',
                             'name' => array_get($identity, 'name'),
-                        ],
-                    ];
+                        ];
+
+                        $mainEntityOfPageJSONLD['offers'] = [
+                            'type' => 'Offer',
+                            'priceCurrency' => $element->productCurrency,
+                            'price' => $element->productPrice,
+                            'itemCondition' => "http://schema.org/NewCondition",
+                            'availability' => "http://schema.org/InStock",
+                            'seller' => [
+                                'type' => 'Organization',
+                                'name' => array_get($identity, 'name'),
+                            ],
+                        ];
+
+                        $mainEntityOfPageJSONLD['aggregateRating'] = [
+                            'type' => 'AggregateRating',
+                            'ratingValue' => '4.8', // TODO: fetch from Reviews.co.uk API
+                            'reviewCount' => '2500', // TODO: fetch from Reviews.co.uk API
+                        ];
+                    }
                 }
                 break;
             }

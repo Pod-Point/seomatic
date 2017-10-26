@@ -32,7 +32,6 @@ class m160715_000000_seomatic_addSeoImageTransforms extends BaseMigration
         $this->alterColumn('seomatic_settings', 'twitterHandle', array(ColumnType::Varchar, 'maxLength' => 50));
         $this->alterColumn('seomatic_settings', 'facebookHandle', array(ColumnType::Varchar, 'maxLength' => 50));
         $this->alterColumn('seomatic_settings', 'facebookProfileId', array(ColumnType::Varchar, 'maxLength' => 50));
-        $this->alterColumn('seomatic_settings', 'facebookAppId', array(ColumnType::Varchar, 'maxLength' => 50));
         $this->alterColumn('seomatic_settings', 'facebookAdminId', array(ColumnType::Varchar, 'maxLength' => 50));
         $this->alterColumn('seomatic_settings', 'linkedInHandle', array(ColumnType::Varchar, 'maxLength' => 50));
         $this->alterColumn('seomatic_settings', 'googlePlusHandle', array(ColumnType::Varchar, 'maxLength' => 50));
