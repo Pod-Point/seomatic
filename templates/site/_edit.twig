@@ -202,6 +202,43 @@
                         locale: siteMeta.locale,
                     }) }}
 
+                    <div class="field">
+                        {{ forms.lightswitchField({
+                            id: "siteSeoShowIdentity",
+                            label: "Include identity?"|t,
+                            name: "siteSeoShowIdentity",
+                            instructions: "Whether to show the Identity JSON-LD structured data entity (used by Google)"|t,
+                            on: siteMeta.siteSeoShowIdentity,
+                        }) }}
+                    </div>
+                    <div class="field">
+                        {{ forms.lightswitchField({
+                            id: "siteSeoShowWebsite",
+                            label: "Include website?"|t,
+                            name: "siteSeoShowWebsite",
+                            instructions: "Whether to show the Website JSON-LD structured data entity (used by Google)"|t,
+                            on: siteMeta.siteSeoShowWebsite,
+                        }) }}
+                    </div>
+                    <div class="field">
+                        {{ forms.lightswitchField({
+                            id: "siteSeoShowPlace",
+                            label: "Include place?"|t,
+                            name: "siteSeoShowPlace",
+                            instructions: "Whether to show the Place JSON-LD structured data entity (used by Google)"|t,
+                            on: siteMeta.siteSeoShowPlace,
+                        }) }}
+                    </div>
+                    <div class="field">
+                        {{ forms.lightswitchField({
+                            id: "siteSeoShowMainEntity",
+                            label: "Include main entity?"|t,
+                            name: "siteSeoShowMainEntity",
+                            instructions: "Whether to show the Main Entity JSON-LD structured data entity (used by Google)"|t,
+                            on: siteMeta.siteSeoShowMainEntity,
+                        }) }}
+                    </div>
+
                     {{ forms.selectField({
                         label: "Site Twitter Card Type"|t,
                         instructions: "With Twitter Cards, you can attach rich photos and information to Tweets that drive traffic to your website. Users who Tweet links to your content will have a “Card” added to the Tweet that’s visible to all of their followers."|t,

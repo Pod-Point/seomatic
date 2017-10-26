@@ -135,18 +135,20 @@ class Seomatic_MetaFieldType extends BaseFieldType
         $variables['transformsList'] = craft()->seomatic->getTransformsList();
 
         // Set section defaults where appropriate
-        $section = isset($this->element) && isset($this->element->section) ? $this->element->section->name : '*';
-        $sectionsMetaDefaults = craft()->config->get('sectionsMetaDefaults', 'seomatic');
-        $sectionMetaDefaults = array_get($sectionsMetaDefaults, $section, array_get($sectionsMetaDefaults, '*', []));
+        $section = isset($this->element) && isset($this->element->section) ? $this->element->section->name : '';
+        if ($section) {
+            $allSectionsMetaDefaults = craft()->config->get('sectionsMetaDefaults', 'seomatic');
+            $thisSectionMetaDefaults = array_get($allSectionsMetaDefaults, $section);
 
-        if ($sectionMetaDefaults) {
-            foreach($sectionMetaDefaults as $fieldName => $fieldValue) {
-                // New entries
-                if (!$this->element->id) {
-                    $variables['meta']->$fieldName = $fieldValue;
-                // Existing entries - only set fields not already set
-                } elseif (!isset($variables['meta']->$fieldName) || is_null($variables['meta']->$fieldName)) {
-                    $variables['meta']->$fieldName = $fieldValue;
+            if ($thisSectionMetaDefaults) {
+                foreach($thisSectionMetaDefaults as $fieldName => $fieldValue) {
+                    // New entries
+                    if (!$this->element->id) {
+                        $variables['meta']->$fieldName = $fieldValue;
+                    // Existing entries - where fields not already set
+                    } elseif (!isset($variables['meta']->$fieldName) || is_null($variables['meta']->$fieldName)) {
+                        $variables['meta']->$fieldName = $fieldValue;
+                    }
                 }
             }
         }

@@ -1124,11 +1124,13 @@ class SeomaticService extends BaseApplicationComponent
 
         $meta = [];
 
-/* -- Get section-level defaults config settings */
+/* -- Get section-level default settings */
 
-        $section = isset($this->lastElement) && isset($this->lastElement->section) ? $this->lastElement->section->name : '*';
-        $sectionsMetaDefaults = craft()->config->get('sectionsMetaDefaults', 'seomatic');
-        $meta = array_get($sectionsMetaDefaults, $section, array_get($sectionsMetaDefaults, '*', []));
+        $section = isset($this->lastElement) && isset($this->lastElement->section) ? $this->lastElement->section->name : '';
+        if ($section) {
+            $allSectionsMetaDefaults = craft()->config->get('sectionsMetaDefaults', 'seomatic');
+            $meta = array_get($allSectionsMetaDefaults, $section, []);
+        }
 
 /* -- Load in our globals */
 
@@ -1150,6 +1152,10 @@ class SeomaticService extends BaseApplicationComponent
         $globalMeta['seoKeywords'] = $siteMeta['siteSeoKeywords'];
         $globalMeta['seoImage'] = $this->getFullyQualifiedUrl($siteMeta['siteSeoImage']);
         $globalMeta['seoImageId'] = $siteMeta['siteSeoImageId'];
+        $globalMeta['seoShowIdentity'] = $siteMeta['siteSeoShowIdentity'];
+        $globalMeta['seoShowWebsite'] = $siteMeta['siteSeoShowWebsite'];
+        $globalMeta['seoShowPlace'] = $siteMeta['siteSeoShowPlace'];
+        $globalMeta['seoShowMainEntity'] = $siteMeta['siteSeoShowMainEntity'];
         $globalMeta['seoTwitterImageId'] = $siteMeta['siteSeoTwitterImageId'];
         $globalMeta['seoFacebookImageId'] = $siteMeta['siteSeoFacebookImageId'];
         $globalMeta['seoImageTransform'] = $siteMeta['siteSeoImageTransform'];
@@ -1467,7 +1473,6 @@ class SeomaticService extends BaseApplicationComponent
         $siteMeta = array();
 
         $siteMeta['locale'] = $settings['locale'];
-
         $siteMeta['siteSeoName'] = $settings['siteSeoName'];
         $siteMeta['siteSeoTitle'] = $settings['siteSeoTitle'];
         $siteMeta['siteSeoTitleSeparator'] = $settings['siteSeoTitleSeparator'];
@@ -1476,6 +1481,10 @@ class SeomaticService extends BaseApplicationComponent
         $siteMeta['siteSeoDescription'] = $settings['siteSeoDescription'];
         $siteMeta['siteSeoKeywords'] = $settings['siteSeoKeywords'];
         $siteMeta['siteSeoImageId'] = $settings['siteSeoImageId'];
+        $siteMeta['siteSeoShowIdentity'] = $settings['siteSeoShowIdentity'];
+        $siteMeta['siteSeoShowWebsite'] = $settings['siteSeoShowWebsite'];
+        $siteMeta['siteSeoShowPlace'] = $settings['siteSeoShowPlace'];
+        $siteMeta['siteSeoShowMainEntity'] = $settings['siteSeoShowMainEntity'];
         $siteMeta['siteSeoTwitterImageId'] = $settings['siteSeoTwitterImageId'];
         $siteMeta['siteSeoFacebookImageId'] = $settings['siteSeoFacebookImageId'];
         $siteMeta['siteSeoImageTransform'] = $settings['siteSeoImageTransform'];

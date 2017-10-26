@@ -103,8 +103,9 @@ return array(
     "siteDevModeTitle" => '[devMode]',
 
 /**
- * This allows you set default meta settings on your website on a per-section basis.
- * Use '*' as the key to apply to any other section not specifically included.
+ * This allows you set default meta settings for each section.
+ * These override Seomatic site meta settings.
+ * They are overridden by meta settings saved on individual entries.
  */
 
     'sectionsMetaDefaults' => array(
@@ -145,12 +146,6 @@ return array(
             'seoMainEntityOfPage' => 'Article',
         ],
         'Landing Pages' => [
-            'seoShowIdentity' => false,
-            'seoShowWebsite' => true,
-            'seoShowPlace' => false,
-            'seoShowMainEntity' => false,
-        ],
-        '*' => [
             'seoShowIdentity' => false,
             'seoShowWebsite' => true,
             'seoShowPlace' => false,

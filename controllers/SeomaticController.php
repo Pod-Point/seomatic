@@ -963,6 +963,10 @@ class SeomaticController extends BaseController
         $record->siteSeoDescription = craft()->request->getPost('siteSeoDescription', $record->siteSeoDescription);
         $record->siteSeoKeywords = craft()->request->getPost('siteSeoKeywords', $record->siteSeoKeywords);
         $record->siteSeoImageTransform = craft()->request->getPost('siteSeoImageTransform', $record->siteSeoImageTransform);
+        $record->siteSeoShowIdentity = craft()->request->getPost('siteSeoShowIdentity', $record->siteSeoShowIdentity);
+        $record->siteSeoShowWebsite = craft()->request->getPost('siteSeoShowWebsite', $record->siteSeoShowWebsite);
+        $record->siteSeoShowPlace = craft()->request->getPost('siteSeoShowPlace', $record->siteSeoShowPlace);
+        $record->siteSeoShowMainEntity = craft()->request->getPost('siteSeoShowMainEntity', $record->siteSeoShowMainEntity);
         $record->siteSeoFacebookImageTransform = craft()->request->getPost('siteSeoFacebookImageTransform', $record->siteSeoFacebookImageTransform);
         $record->siteSeoTwitterImageTransform = craft()->request->getPost('siteSeoTwitterImageTransform', $record->siteSeoTwitterImageTransform);
         $record->siteTwitterCardType = craft()->request->getPost('siteTwitterCardType', $record->siteTwitterCardType);
