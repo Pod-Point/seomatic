@@ -134,23 +134,10 @@ class Seomatic_MetaFieldType extends BaseFieldType
 
         $variables['transformsList'] = craft()->seomatic->getTransformsList();
 
-        // Set section defaults where appropriate
+        // Set section defaults
         $section = isset($this->element) && isset($this->element->section) ? $this->element->section->name : '';
         if ($section) {
-            $allSectionsMetaDefaults = craft()->config->get('sectionsMetaDefaults', 'seomatic');
-            $thisSectionMetaDefaults = array_get($allSectionsMetaDefaults, $section);
-
-            if ($thisSectionMetaDefaults) {
-                foreach($thisSectionMetaDefaults as $fieldName => $fieldValue) {
-                    // New entries
-                    if (!$this->element->id) {
-                        $variables['meta']->$fieldName = $fieldValue;
-                    // Existing entries - where fields not already set
-                    } elseif (!isset($variables['meta']->$fieldName) || is_null($variables['meta']->$fieldName)) {
-                        $variables['meta']->$fieldName = $fieldValue;
-                    }
-                }
-            }
+            $variables = $this->setSectionDefaults($variables, $section, !$this->element->id);
         }
 
 /* -- Extract a list of the other plain text fields that are in this entry's layout */
@@ -218,6 +205,32 @@ class Seomatic_MetaFieldType extends BaseFieldType
         craft()->templates->includeJs("$('#{$namespacedId}').SeomaticFieldType(" . $jsonVars . ");");
         return craft()->templates->render('seomatic/field', $variables);
         }
+    }
+
+    /**
+     * Set section defaults where appropriate
+     *
+     * @param array $variables
+     * @param string $section
+     * @param bool $isNewEntry
+     * @return array
+     */
+    private function setSectionDefaults(array $variables, string $section, bool $isNewEntry)
+    {
+        $allSectionsMetaDefaults = craft()->config->get('sectionsMetaDefaults', 'seomatic');
+        $thisSectionMetaDefaults = array_get($allSectionsMetaDefaults, $section);
+
+        if ($thisSectionMetaDefaults) {
+            foreach($thisSectionMetaDefaults as $fieldName => $fieldValue) {
+                if ($isNewEntry) {
+                    $variables['meta']->$fieldName = $fieldValue;
+                } elseif (!isset($variables['meta']->$fieldName) || is_null($variables['meta']->$fieldName)) {
+                    $variables['meta']->$fieldName = $fieldValue;
+                }
+            }
+        }
+
+        return $variables;
     }
 
     /**
