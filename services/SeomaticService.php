@@ -595,6 +595,7 @@ class SeomaticService extends BaseApplicationComponent
     public function getMetaFromElement($element)
     {
 /* -- See if there is an 'entry' automagically put into this template, and if it contains an Seomatic_Meta */
+
         $entryMeta = null;
         if (isset($element) && $element)
         {
@@ -812,6 +813,7 @@ class SeomaticService extends BaseApplicationComponent
 
     public function setEntryMeta($entryMeta, $entryMetaUrl)
     {
+
         $meta = null;
 
 /* -- If $entryMeta was passed in, merge it with our array */

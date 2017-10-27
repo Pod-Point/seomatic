@@ -115,7 +115,7 @@ class Seomatic_SettingsRecord extends BaseRecord
             'facebookHandle'            		=> array(AttributeType::String, 'maxLength' => 50, 'default' => ''),
             'facebookProfileId'                 => array(AttributeType::String, 'maxLength' => 50, 'default' => ''),
             'facebookAppId'                     => array(AttributeType::String, 'maxLength' => 50, 'default' => ''),
-            'facebookAdminId'                   => array(AttributeType::String, 'maxLength' => 50, 'default' => ''),
+            'facebookAdminId'                   => array(AttributeType::String, 'maxLength' => 255, 'default' => ''),
             'linkedInHandle'            		=> array(AttributeType::String, 'maxLength' => 50, 'default' => ''),
             'googlePlusHandle'          		=> array(AttributeType::String, 'maxLength' => 50, 'default' => ''),
             'youtubeHandle'                     => array(AttributeType::String, 'maxLength' => 50, 'default' => ''),
