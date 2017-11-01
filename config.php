@@ -103,6 +103,57 @@ return array(
     "siteDevModeTitle" => '[devMode]',
 
 /**
+ * This allows you set default meta settings for each section.
+ * These override Seomatic site meta settings.
+ * They are overridden by meta settings saved on individual entries.
+ */
+
+    'sectionsMetaDefaults' => array(
+        'Homepage' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Organization',
+        ],
+        'About Us' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Organization',
+        ],
+        'Contact Us' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Organization',
+        ],
+        'Product Pages' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'Product',
+        ],
+        'Electric Car News' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => false,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => true,
+            'seoMainEntityCategory' => 'CreativeWork',
+            'seoMainEntityOfPage' => 'Article',
+        ],
+        'Landing Pages' => [
+            'seoShowIdentity' => false,
+            'seoShowWebsite' => true,
+            'seoShowPlace' => false,
+            'seoShowMainEntity' => false,
+        ],
+    ),
+
+/**
  * This allows you to globally override the meta settings on your website.  WARNING:
  * anything you set here will REPLACE the meta settings globally.  You might wish to
  * use this, for instance, to set 'robots' to be 'none' on development/staging to

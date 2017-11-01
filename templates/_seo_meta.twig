@@ -41,25 +41,6 @@
 <meta name="geo.placename" content="{{ seomaticIdentity.location.name |raw }}" />
 {% endif %}
 
-<!-- Dublin Core basic info -->
-
-<meta name="dcterms.Identifier" content="{{ seomaticMeta.canonicalUrl }}" />
-<meta name="dcterms.Format" content="text/html" />
-<meta name="dcterms.Relation" content="{{ seomaticSiteMeta.siteSeoName |raw }}" />
-<meta name="dcterms.Language" content="{{ craft.locale | slice (0,2) }}" />
-<meta name="dcterms.Publisher" content="{{ seomaticSiteMeta.siteSeoName |raw }}" />
-<meta name="dcterms.Type" content="text/html" />
-<meta name="dcterms.Coverage" content="{{ siteUrl }}" />
-<meta name="dcterms.Rights" content="{{ seomaticHelper.ownerCopyrightNotice |raw }}" />
-<meta name="dcterms.Title" content="{{ seomaticMeta.seoTitle |raw }}" />
-{% if seomaticCreator.name is defined and seomaticCreator.name %}
-<meta name="dcterms.Creator" content="{{ seomaticCreator.name |raw }}" />
-{% endif %}
-<meta name="dcterms.Subject" content="{{ seomaticMeta.seoKeywords |raw }}" />
-<meta name="dcterms.Contributor" content="{{ seomaticSiteMeta.siteSeoName |raw }}" />
-<meta name="dcterms.Date" content="{{ now | date('Y-m-d') }}" />
-<meta name="dcterms.Description" content="{{ seomaticMeta.seoDescription |raw }}" />
-
 {% if seomaticMeta.og is defined and seomaticMeta.og %}
 <!-- Facebook OpenGraph -->
 

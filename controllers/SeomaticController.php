@@ -871,6 +871,10 @@ class SeomaticController extends BaseController
         $model->elementId = $metaId;
         $model->metaType = craft()->request->getPost('metaType', $model->metaType);
         $model->metaPath = craft()->request->getPost('metaPath', $model->metaPath);
+        $model->seoShowIdentity = craft()->request->getPost('seoShowIdentity', $model->seoShowIdentity);
+        $model->seoShowWebsite = craft()->request->getPost('seoShowWebsite', $model->seoShowWebsite);
+        $model->seoShowPlace = craft()->request->getPost('seoShowPlace', $model->seoShowPlace);
+        $model->seoShowMainEntity = craft()->request->getPost('seoShowMainEntity', $model->seoShowMainEntity);
         $model->seoMainEntityCategory = craft()->request->getPost('seoMainEntityCategory', $model->seoMainEntityCategory);
         $model->seoMainEntityOfPage = craft()->request->getPost('seoMainEntityOfPage', $model->seoMainEntityOfPage);
         $model->seoTitle = craft()->request->getPost('seoTitle', $model->seoTitle);
@@ -959,6 +963,10 @@ class SeomaticController extends BaseController
         $record->siteSeoDescription = craft()->request->getPost('siteSeoDescription', $record->siteSeoDescription);
         $record->siteSeoKeywords = craft()->request->getPost('siteSeoKeywords', $record->siteSeoKeywords);
         $record->siteSeoImageTransform = craft()->request->getPost('siteSeoImageTransform', $record->siteSeoImageTransform);
+        $record->siteSeoShowIdentity = craft()->request->getPost('siteSeoShowIdentity', $record->siteSeoShowIdentity);
+        $record->siteSeoShowWebsite = craft()->request->getPost('siteSeoShowWebsite', $record->siteSeoShowWebsite);
+        $record->siteSeoShowPlace = craft()->request->getPost('siteSeoShowPlace', $record->siteSeoShowPlace);
+        $record->siteSeoShowMainEntity = craft()->request->getPost('siteSeoShowMainEntity', $record->siteSeoShowMainEntity);
         $record->siteSeoFacebookImageTransform = craft()->request->getPost('siteSeoFacebookImageTransform', $record->siteSeoFacebookImageTransform);
         $record->siteSeoTwitterImageTransform = craft()->request->getPost('siteSeoTwitterImageTransform', $record->siteSeoTwitterImageTransform);
         $record->siteTwitterCardType = craft()->request->getPost('siteTwitterCardType', $record->siteTwitterCardType);
@@ -1129,6 +1137,7 @@ class SeomaticController extends BaseController
         $record->facebookHandle = craft()->request->getPost('facebookHandle', $record->facebookHandle);
         $record->facebookProfileId = craft()->request->getPost('facebookProfileId', $record->facebookProfileId);
         $record->facebookAppId = craft()->request->getPost('facebookAppId', $record->facebookAppId);
+        $record->facebookAdminId = craft()->request->getPost('facebookAdminId', $record->facebookAdminId);
         $record->linkedInHandle = craft()->request->getPost('linkedInHandle', $record->linkedInHandle);
         $record->googlePlusHandle = craft()->request->getPost('googlePlusHandle', $record->googlePlusHandle);
         $record->youtubeHandle = craft()->request->getPost('youtubeHandle', $record->youtubeHandle);

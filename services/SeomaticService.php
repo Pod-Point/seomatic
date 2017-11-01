@@ -5,6 +5,7 @@ use \crodas\TextRank\Config;
 use \crodas\TextRank\TextRank;
 use \crodas\TextRank\Summary;
 use \crodas\TextRank\Stopword;
+use Craft\Seomatic_MetaModel;
 
 class SeomaticService extends BaseApplicationComponent
 {
@@ -244,8 +245,13 @@ class SeomaticService extends BaseApplicationComponent
 
     public function renderIdentity($metaVars, $locale, $isPreview=false)
     {
-        $this->sanitizeMetaVars($metaVars);
-        $htmlText = $this->renderJSONLD($metaVars['seomaticIdentity'], $isPreview);
+        $htmlText = '';
+
+        if (array_get($metaVars, 'seomaticMeta.seoShowIdentity', false)) {
+            $this->sanitizeMetaVars($metaVars);
+            $htmlText = $this->renderJSONLD($metaVars['seomaticIdentity'], $isPreview);
+        }
+
         return $htmlText;
     } /* -- renderIdentity */
 
@@ -255,9 +261,14 @@ class SeomaticService extends BaseApplicationComponent
 
     public function renderWebsite($metaVars, $locale, $isPreview=false)
     {
-        $this->sanitizeMetaVars($metaVars);
-        $webSite = $this->getWebSiteJSONLD($metaVars, $locale);
-        $htmlText = $this->renderJSONLD($webSite, $isPreview);
+        $htmlText = '';
+
+        if (array_get($metaVars, 'seomaticMeta.seoShowWebsite', false)) {
+            $this->sanitizeMetaVars($metaVars);
+            $webSite = $this->getWebSiteJSONLD($metaVars, $locale);
+            $htmlText = $this->renderJSONLD($webSite, $isPreview);
+        }
+
         return $htmlText;
     } /* -- renderWebsite */
 
@@ -267,9 +278,9 @@ class SeomaticService extends BaseApplicationComponent
 
     public function renderMainEntityOfPage($metaVars, $locale, $isPreview=false)
     {
-        $htmlText = "";
+        $htmlText = '';
 
-        if (isset($metaVars['seomaticMainEntityOfPage']))
+        if (array_get($metaVars, 'seomaticMeta.seoShowMainEntity', false) && isset($metaVars['seomaticMainEntityOfPage']))
         {
             $this->sanitizeMetaVars($metaVars);
             $htmlText = $this->renderJSONLD($metaVars['seomaticMainEntityOfPage'], $isPreview);
@@ -301,8 +312,9 @@ class SeomaticService extends BaseApplicationComponent
 
     public function renderPlace($metaVars, $locale, $isPreview=false)
     {
-        $htmlText = "";
-        if (($metaVars['seomaticIdentity']['type'] != "Person") && (isset($metaVars['seomaticIdentity']['location'])))
+        $htmlText = '';
+
+        if (array_get($metaVars, 'seomaticMeta.seoShowPlace', false) && ($metaVars['seomaticIdentity']['type'] != 'Person') && (isset($metaVars['seomaticIdentity']['location'])))
         {
             $this->sanitizeMetaVars($metaVars);
             $place = $metaVars['seomaticIdentity']['location'];
@@ -318,6 +330,7 @@ class SeomaticService extends BaseApplicationComponent
                 }
             }
         }
+
         return $htmlText;
     } /* -- renderPlace */
 
@@ -808,6 +821,10 @@ class SeomaticService extends BaseApplicationComponent
         if ($entryMeta)
         {
             $meta = array();
+            $meta['seoShowIdentity'] = $entryMeta->seoShowIdentity;
+            $meta['seoShowWebsite'] = $entryMeta->seoShowWebsite;
+            $meta['seoShowPlace'] = $entryMeta->seoShowPlace;
+            $meta['seoShowMainEntity'] = $entryMeta->seoShowMainEntity;
             $meta['seoMainEntityCategory'] = $entryMeta->seoMainEntityCategory;
             $meta['seoMainEntityOfPage'] = $entryMeta->seoMainEntityOfPage;
             $meta['seoTitle'] = $entryMeta->seoTitle;
@@ -876,13 +893,31 @@ class SeomaticService extends BaseApplicationComponent
             {
                 $this->entrySeoCommerceVariants = $entryMeta->seoCommerceVariants;
             }
-            $meta = array_filter($meta);
+
+            $meta = $this->removeNullAndEmptyExceptBooleanFields($meta);
+
             if (!isset($meta['seoMainEntityOfPage']))
                 $meta['seoMainEntityOfPage'] ="";
         }
         $this->entryMeta = $meta;
         return $meta;
     } /* -- setEntryMeta */
+
+    /**
+     * Strips out meta fields that have null or empty values - except boolean light switch fields,
+     * where Craft stores false/off as an empty string
+     *
+     * @param array $meta
+     * @return array
+     */
+    private function removeNullAndEmptyExceptBooleanFields(array $meta)
+    {
+        $metaModel = new Seomatic_MetaModel();
+
+        return array_filter($meta, function($metaValue, $metaField) use ($metaModel) {
+            return !is_null($metaValue) && ($metaValue !== '' || array_get($metaModel->attributeConfigs, "{$metaField}.type") === 'bool');
+        }, ARRAY_FILTER_USE_BOTH);
+    }
 
 /* --------------------------------------------------------------------------------
     Set the Twitter Cards and Open Graph arrays for the meta
@@ -924,7 +959,7 @@ class SeomaticService extends BaseApplicationComponent
                         $twitterCard['creator'] = "";
                     break;
                 }
-                $twitterCard['title'] = $titlePrefix . $meta['seoTitle'] . $titleSuffix;
+                $twitterCard['title'] = $meta['seoTitle'];
                 $twitterCard['description'] = $meta['seoDescription'];
 
 /* -- Swap in the seoImageId for the actual asset */
@@ -967,7 +1002,7 @@ class SeomaticService extends BaseApplicationComponent
                 $openGraph['locale'] = $openGraph['locale'] . "_" . strtoupper($openGraph['locale']);
 
             $openGraph['url'] = $meta['canonicalUrl'];
-            $openGraph['title'] = $titlePrefix . $meta['seoTitle'] . $titleSuffix;
+            $openGraph['title'] = $meta['seoTitle'];
             $openGraph['description'] = $meta['seoDescription'];
 
 /* -- Swap in the seoImageId for the actual asset */
@@ -1089,9 +1124,19 @@ class SeomaticService extends BaseApplicationComponent
         if (!$locale)
             $locale = craft()->language;
 
+        $meta = [];
+
+/* -- Get section-level default settings */
+
+        $section = isset($this->lastElement) && isset($this->lastElement->section) ? $this->lastElement->section->name : '';
+        if ($section) {
+            $allSectionsMetaDefaults = craft()->config->get('sectionsMetaDefaults', 'seomatic');
+            $meta = array_get($allSectionsMetaDefaults, $section, []);
+        }
+
 /* -- Load in our globals */
 
-        $meta = $this->getMeta($forTemplate);
+        $meta = array_merge($meta, $this->getMeta($forTemplate));
         $siteMeta = $this->getSiteMeta($locale);
         $identity = $this->getIdentity($locale);
         $social = $this->getSocial($locale);
@@ -1109,6 +1154,10 @@ class SeomaticService extends BaseApplicationComponent
         $globalMeta['seoKeywords'] = $siteMeta['siteSeoKeywords'];
         $globalMeta['seoImage'] = $this->getFullyQualifiedUrl($siteMeta['siteSeoImage']);
         $globalMeta['seoImageId'] = $siteMeta['siteSeoImageId'];
+        $globalMeta['seoShowIdentity'] = $siteMeta['siteSeoShowIdentity'];
+        $globalMeta['seoShowWebsite'] = $siteMeta['siteSeoShowWebsite'];
+        $globalMeta['seoShowPlace'] = $siteMeta['siteSeoShowPlace'];
+        $globalMeta['seoShowMainEntity'] = $siteMeta['siteSeoShowMainEntity'];
         $globalMeta['seoTwitterImageId'] = $siteMeta['siteSeoTwitterImageId'];
         $globalMeta['seoFacebookImageId'] = $siteMeta['siteSeoFacebookImageId'];
         $globalMeta['seoImageTransform'] = $siteMeta['siteSeoImageTransform'];
@@ -1426,7 +1475,6 @@ class SeomaticService extends BaseApplicationComponent
         $siteMeta = array();
 
         $siteMeta['locale'] = $settings['locale'];
-
         $siteMeta['siteSeoName'] = $settings['siteSeoName'];
         $siteMeta['siteSeoTitle'] = $settings['siteSeoTitle'];
         $siteMeta['siteSeoTitleSeparator'] = $settings['siteSeoTitleSeparator'];
@@ -1435,6 +1483,10 @@ class SeomaticService extends BaseApplicationComponent
         $siteMeta['siteSeoDescription'] = $settings['siteSeoDescription'];
         $siteMeta['siteSeoKeywords'] = $settings['siteSeoKeywords'];
         $siteMeta['siteSeoImageId'] = $settings['siteSeoImageId'];
+        $siteMeta['siteSeoShowIdentity'] = $settings['siteSeoShowIdentity'];
+        $siteMeta['siteSeoShowWebsite'] = $settings['siteSeoShowWebsite'];
+        $siteMeta['siteSeoShowPlace'] = $settings['siteSeoShowPlace'];
+        $siteMeta['siteSeoShowMainEntity'] = $settings['siteSeoShowMainEntity'];
         $siteMeta['siteSeoTwitterImageId'] = $settings['siteSeoTwitterImageId'];
         $siteMeta['siteSeoFacebookImageId'] = $settings['siteSeoFacebookImageId'];
         $siteMeta['siteSeoImageTransform'] = $settings['siteSeoImageTransform'];
@@ -1867,6 +1919,7 @@ class SeomaticService extends BaseApplicationComponent
         $social['facebookHandle'] = $settings['facebookHandle'];
         $social['facebookProfileId'] = $settings['facebookProfileId'];
         $social['facebookAppId'] = $settings['facebookAppId'];
+        $social['facebookAdminId'] = $settings['facebookAdminId'];
         $social['linkedInHandle'] = $settings['linkedInHandle'];
         $social['googlePlusHandle'] = $settings['googlePlusHandle'];
         $social['youtubeHandle'] = $settings['youtubeHandle'];
@@ -2184,6 +2237,8 @@ class SeomaticService extends BaseApplicationComponent
     {
 
         $mainEntityOfPageJSONLD = array();
+        $element = $this->lastElement ? craft()->elements->getElementById($this->lastElement->id, null, $locale) : null;
+
         if (isset($meta['seoMainEntityCategory']) && isset($meta['seoMainEntityOfPage']))
         {
             $entityCategory = $meta['seoMainEntityCategory'];
@@ -2319,16 +2374,90 @@ class SeomaticService extends BaseApplicationComponent
                     unset($mainEntityOfPageJSONLD['publisher']['servesCuisine']);
                     unset($mainEntityOfPageJSONLD['publisher']['menu']);
                     unset($mainEntityOfPageJSONLD['publisher']['acceptsReservations']);
+
+                    if (array_get($meta, 'seoMainEntityOfPage') === 'Article') {
+                        $mainEntityOfPageJSONLD['mainEntityOfPage'] = [
+                            'type' => 'WebPage',
+                            'id' => 'https://google.com/article',
+                        ];
+
+                        $articleImage = array_get($mainEntityOfPageJSONLD, 'author.image');
+                        if ($articleImage) {
+                            $mainEntityOfPageJSONLD['image'] = $articleImage;
+                        }
+
+                        unset($mainEntityOfPageJSONLD['author']);
+                        $author = $element ? $element->getAuthor() : null;
+                        if ($author) {
+                            $mainEntityOfPageJSONLD['author'] = [
+                                'type' => 'Person',
+                                'name' => $author->firstName . ' ' . $author->lastName,
+                            ];
+                        }
+                    }
                 }
                 break;
 
-                case "Event":
+            case "Event":
                 {
                 }
                 break;
 
-                case "Product":
+            case "Organization":
                 {
+                    $mainEntityOfPageJSONLD['name'] = array_get($identity, 'name');
+                    $mainEntityOfPageJSONLD['logo'] = array_get($identity, 'name');
+                    $mainEntityOfPageJSONLD['sameAs'] = array_get($identity, 'sameAs');
+                    $mainEntityOfPageJSONLD['logo'] = array_get($identity, 'logo.url');
+                    $mainEntityOfPageJSONLD['contactPoint'] = array_get($identity, 'contactPoint');
+
+                    $country = array_get($identity, 'address.addressCountry');
+                    if (array_get($mainEntityOfPageJSONLD, 'contactPoint') && $country) {
+                        array_walk($mainEntityOfPageJSONLD['contactPoint'], function(&$contactPoint) use ($country) {
+                            $contactPoint['areaServed'] = $country;
+                        });
+                    }
+                }
+                break;
+
+            case "Product":
+                {
+                    if ($element && isset($element->productName) && isset($element->productDescription) && isset($element->productCurrency) && isset($element->productPrice)) {
+                        $mainEntityOfPageJSONLD['name'] = $element->productName;
+                        $mainEntityOfPageJSONLD['description'] = $element->productDescription;
+                        $mainEntityOfPageJSONLD['image'] = $element->productImage ? $element->productImage->first()->getUrl() : '';
+
+                        $mainEntityOfPageJSONLD['brand'] = [
+                            'type' => 'Thing',
+                            'name' => array_get($identity, 'name'),
+                        ];
+
+                        $mainEntityOfPageJSONLD['offers'] = [
+                            'type' => 'Offer',
+                            'priceCurrency' => $element->productCurrency,
+                            'price' => $element->productPrice,
+                            'itemCondition' => "http://schema.org/NewCondition",
+                            'availability' => "http://schema.org/InStock",
+                            'seller' => [
+                                'type' => 'Organization',
+                                'name' => array_get($identity, 'name'),
+                            ],
+                        ];
+
+                        if (isset($element->productCategory) && $element->productCategory->value === 'homeCharge') {
+                            $reviewsStats = craft()->reviewsApi_reviews->getTotalReviewStats();
+                            $reviewsAverageRating = array_get($reviewsStats, 'average_rating');
+                            $reviewsTotalNumber = array_get($reviewsStats, 'total_reviews');
+
+                            if ($reviewsAverageRating && $reviewsTotalNumber) {
+                                $mainEntityOfPageJSONLD['aggregateRating'] = [
+                                    'type' => 'AggregateRating',
+                                    'ratingValue' => (string) round($reviewsAverageRating, 1),
+                                    'reviewCount' => (string) number_format($reviewsTotalNumber),
+                                ];
+                            }
+                        }
+                    }
                 }
                 break;
             }
@@ -2535,6 +2664,10 @@ function parseAsTemplate($templateStr, $element)
                 $meta['seoTitle'] = $this->parseAsTemplate($metaRecord->seoTitle, $element);
                 $meta['seoDescription'] = $this->parseAsTemplate($metaRecord->seoDescription, $element);
                 $meta['seoKeywords'] = $this->parseAsTemplate($metaRecord->seoKeywords, $element);
+                $meta['seoShowIdentity'] = $metaRecord->seoShowIdentity;
+                $meta['seoShowWebsite'] = $metaRecord->seoShowWebsite;
+                $meta['seoShowPlace'] = $metaRecord->seoShowPlace;
+                $meta['seoShowMainEntity'] = $metaRecord->seoShowMainEntity;
                 $meta['seoMainEntityCategory'] = $metaRecord->seoMainEntityCategory;
                 $meta['seoMainEntityOfPage'] = $metaRecord->seoMainEntityOfPage;
 
@@ -2952,16 +3085,12 @@ function parseAsTemplate($templateStr, $element)
         } else {
             $title = $seomaticMeta['seoTitle'];
         }
-        if (isset($seomaticMeta['twitter']))
-            $seomaticMeta['twitter']['title'] = $titlePrefix . $title . $titleSuffix;
 
         if (isset($seomaticMeta['og']['title'])) {
             $title = $seomaticMeta['og']['title'];
         } else {
             $title = $seomaticMeta['seoTitle'];
         }
-        if (isset($seomaticMeta['og']))
-            $seomaticMeta['og']['title'] = $titlePrefix . $title . $titleSuffix;
 
 /* -- Truncate seoTitle, seoDescription, and seoKeywords to recommended values */
 

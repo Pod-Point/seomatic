@@ -134,6 +134,12 @@ class Seomatic_MetaFieldType extends BaseFieldType
 
         $variables['transformsList'] = craft()->seomatic->getTransformsList();
 
+        // Set section defaults
+        $section = isset($this->element) && isset($this->element->section) ? $this->element->section->name : '';
+        if ($section) {
+            $variables = $this->setSectionDefaults($variables, $section, !$this->element->id);
+        }
+
 /* -- Extract a list of the other plain text fields that are in this entry's layout */
 
         $fieldList = array('title' => 'Title');
@@ -202,6 +208,32 @@ class Seomatic_MetaFieldType extends BaseFieldType
     }
 
     /**
+     * Set section defaults where appropriate
+     *
+     * @param array $variables
+     * @param string $section
+     * @param bool $isNewEntry
+     * @return array
+     */
+    private function setSectionDefaults(array $variables, string $section, bool $isNewEntry)
+    {
+        $allSectionsMetaDefaults = craft()->config->get('sectionsMetaDefaults', 'seomatic');
+        $thisSectionMetaDefaults = array_get($allSectionsMetaDefaults, $section);
+
+        if ($thisSectionMetaDefaults) {
+            foreach($thisSectionMetaDefaults as $fieldName => $fieldValue) {
+                if ($isNewEntry) {
+                    $variables['meta']->$fieldName = $fieldValue;
+                } elseif (!isset($variables['meta']->$fieldName) || is_null($variables['meta']->$fieldName)) {
+                    $variables['meta']->$fieldName = $fieldValue;
+                }
+            }
+        }
+
+        return $variables;
+    }
+
+    /**
      * Define our settings
      * @return none
      */
@@ -209,6 +241,11 @@ class Seomatic_MetaFieldType extends BaseFieldType
         {
             return array(
                 'assetSources' => AttributeType::Mixed,
+
+                'seoShowIdentity' => array(AttributeType::Bool, 'default' => true),
+                'seoShowWebsite' => array(AttributeType::Bool, 'default' => true),
+                'seoShowPlace' => array(AttributeType::Bool, 'default' => true),
+                'seoShowMainEntity' => array(AttributeType::Bool, 'default' => true),
 
                 'seoMainEntityCategory' => array(AttributeType::String, 'default' => 'CreativeWork'),
                 'seoMainEntityOfPage' => array(AttributeType::String, 'default' => 'WebPage'),
@@ -341,7 +378,6 @@ class Seomatic_MetaFieldType extends BaseFieldType
             $value = $this->prepValue($value);
         }
 
-
 /* -- Handle pulling values from other fields */
 
         $element = $this->element;
@@ -470,6 +506,11 @@ class Seomatic_MetaFieldType extends BaseFieldType
         if (!$value)
         {
             $value = new Seomatic_MetaFieldModel();
+
+            $value->seoShowIdentity = $this->getSettings()->seoShowIdentity;
+            $value->seoShowWebsite = $this->getSettings()->seoShowWebsite;
+            $value->seoShowPlace = $this->getSettings()->seoShowPlace;
+            $value->seoShowMainEntity = $this->getSettings()->seoShowMainEntity;
 
             $value->seoMainEntityCategory = $this->getSettings()->seoMainEntityCategory;
             $value->seoMainEntityOfPage = $this->getSettings()->seoMainEntityOfPage;

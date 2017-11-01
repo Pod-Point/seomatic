@@ -114,6 +114,17 @@
                 }) }}
 
                 {{ forms.textField({
+                    label: "Facebook Admin ID"|t,
+                    instructions: ("One or more Facebook Admin IDs (separate multiple IDs with a comma and no space) e.g. 111111111 or 111111111,222222222") |t |raw,
+                    id: "facebookAdminId",
+                    class: 'nicetext',
+                    name: "facebookAdminId",
+                    value: social.facebookAdminId,
+                    required: false,
+                    locale:  social.locale,
+                }) }}
+
+                {{ forms.textField({
                     label: "Wikipedia URL"|t,
                     instructions: ("The full URL to the Wikipedia.com entry that is about this entity.  <a href='http://searchengineland.com/leveraging-wikidata-gain-google-knowledge-graph-result-219706' target='_blank'>Learn More</a>") |t |raw,
                     id: "wikipediaUrl",
