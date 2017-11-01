@@ -5,7 +5,7 @@ namespace Craft;
 /**
  * The class name is the UTC timestamp in the format of mYYMMDD_HHMMSS_pluginHandle_migrationName
  */
-class m171026_093800_seomatic_addFacebookAdminId extends BaseMigration
+class m171025_171200_seomatic_addShowSiteWideJsonLDStructuredData extends BaseMigration
 {
     /**
      * Any migration code in here is wrapped inside of a transaction.
@@ -15,11 +15,13 @@ class m171026_093800_seomatic_addFacebookAdminId extends BaseMigration
     public function safeUp()
     {
         $newColumns = [
-            'facebookAdminId' => ColumnType::Varchar,
+            'siteSeoShowIdentity' => ColumnType::Bool,
+            'siteSeoShowWebsite' => ColumnType::Bool,
+            'siteSeoShowPlace' => ColumnType::Bool,
+            'siteSeoShowMainEntity' => ColumnType::Bool,
         ];
 
-        $this->_addColumnsAfter('seomatic_settings', $newColumns, 'facebookAppId');
-        $this->alterColumn('seomatic_settings', 'facebookAdminId', array(ColumnType::Varchar, 'maxLength' => 255));
+        $this->_addColumnsAfter('seomatic_settings', $newColumns, 'siteSeoImageId');
 
         return true;
     }
@@ -30,9 +32,9 @@ class m171026_093800_seomatic_addFacebookAdminId extends BaseMigration
             if (!craft()->db->columnExists($tableName, $columnName))
             {
                 $this->addColumnAfter($tableName, $columnName, [
-                    'column' => $columnType,
-                    'null'   => true,
-                ],
+                        'column' => $columnType,
+                        'null'   => true,
+                    ],
                     $afterColumnHandle
                 );
                 SeomaticPlugin::log("Created the `$columnName` in the `$tableName` table.", LogLevel::Info, true);

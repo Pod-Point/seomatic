@@ -33,7 +33,7 @@ class m171025_171100_seomatic_addShowJsonLDStructuredData extends BaseMigration
             {
                 $this->addColumnAfter($tableName, $columnName, [
                         'column' => $columnType,
-                        'null'   => false,
+                        'null'   => true,
                     ],
                     $afterColumnHandle
                 );
