@@ -2425,7 +2425,7 @@ class SeomaticService extends BaseApplicationComponent
                     if ($element && isset($element->productName) && isset($element->productDescription) && isset($element->productCurrency) && isset($element->productPrice)) {
                         $mainEntityOfPageJSONLD['name'] = $element->productName;
                         $mainEntityOfPageJSONLD['description'] = $element->productDescription;
-                        $mainEntityOfPageJSONLD['image'] = $element->productImage ? $element->productImage->first()->getUrl() : '';
+                        $mainEntityOfPageJSONLD['image'] = $element->productImage && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
 
                         $mainEntityOfPageJSONLD['brand'] = [
                             'type' => 'Thing',
