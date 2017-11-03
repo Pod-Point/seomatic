@@ -50,6 +50,9 @@
 {% if seomaticSocial.facebookAppId %}
 <meta property="fb:app_id" content="{{ seomaticSocial.facebookAppId |raw }}" />
 {% endif %}
+{% if seomaticSocial.facebookAdminId %}
+<meta property="fb:admins" content="{{ seomaticSocial.facebookAdminId |raw }}" />
+{% endif %}
 {% for key, value in seomaticMeta.og %}
 {% if value %}
 {% if value is iterable %}
