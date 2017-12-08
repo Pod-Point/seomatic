@@ -3,6 +3,12 @@
 	"minimum-stability": "dev",
     "description": "A turnkey SEO implementation for Craft CMS that is comprehensive, powerful, and flexible",
     "type": "craft-plugin",
+    "repositories": [
+        {
+            "type": "git",
+            "url": "git@github.com:Pod-Point/reviewscoukcraft.git"
+        }
+    ],
     "require": {
         "crodas/text-rank" : "dev-master",
         "davechild/textstatistics": "1.0.1",
