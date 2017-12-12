@@ -1959,7 +1959,7 @@ class SeomaticService extends BaseApplicationComponent
         $creator['siteCreatorSubType'] = "";
         $creator['siteCreatorSpecificType'] = "";
 
-/* -- Handle migrating the old way of storing siteCreatorType 
+/* -- Handle migrating the old way of storing siteCreatorType
         $creator['siteCreatorSubType'] = $settings['siteCreatorSubType'];
         $creator['siteCreatorSpecificType'] = $settings['siteCreatorSpecificType'];
 
@@ -2445,15 +2445,19 @@ class SeomaticService extends BaseApplicationComponent
                         ];
 
                         if (isset($element->productCategory) && $element->productCategory->value === 'homeCharge') {
-                            $reviewsStats = craft()->reviewsApi_reviews->getTotalReviewStats();
-                            $reviewsAverageRating = array_get($reviewsStats, 'average_rating');
-                            $reviewsTotalNumber = array_get($reviewsStats, 'total_reviews');
+                            $reviewsStats = craft()->reviewsCoUkCraft->getReviewsStatsForJsonLD();
+                            $reviewsAverageRating = array_get($reviewsStats, 'average_rating', false);
+                            $reviewsTotalNumber = array_get($reviewsStats, 'total_reviews', false);
+                            $reviewsBestRating = array_get($reviewsStats, 'bestRating', false);
+                            $reviewsWorstRating = array_get($reviewsStats, 'worstRating', false);
 
-                            if ($reviewsAverageRating && $reviewsTotalNumber) {
+                            if ($reviewsAverageRating and $reviewsTotalNumber and $reviewsBestRating and $reviewsWorstRating) {
                                 $mainEntityOfPageJSONLD['aggregateRating'] = [
                                     'type' => 'AggregateRating',
                                     'ratingValue' => (string) round($reviewsAverageRating, 1),
                                     'reviewCount' => (string) number_format($reviewsTotalNumber),
+                                    'bestRating' => (string) $reviewsBestRating,
+                                    'worstRating' => (string) $reviewsWorstRating,
                                 ];
                             }
                         }
@@ -2718,7 +2722,7 @@ function parseAsTemplate($templateStr, $element)
                     }
                     else
                         $meta['seoImage'] = '';
-                    /* -- Keep this around for transforms, height, width, etc. 
+                    /* -- Keep this around for transforms, height, width, etc.
                     unset($meta['seoImageId']);
                     */
                 }
