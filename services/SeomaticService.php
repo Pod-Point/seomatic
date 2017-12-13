@@ -2423,28 +2423,11 @@ class SeomaticService extends BaseApplicationComponent
             case "Product":
                 {
                     if ($element && isset($element->productName) && isset($element->productDescription) && isset($element->productCurrency) && isset($element->productPrice)) {
-                        $mainEntityOfPageJSONLD['name'] = $element->productName;
-                        $mainEntityOfPageJSONLD['description'] = $element->productDescription;
-                        $mainEntityOfPageJSONLD['image'] = $element->productImage && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
+                        // Overriding the type of the entity
+                        $mainEntityOfPageJSONLD['type'] = 'Service';
 
-                        $mainEntityOfPageJSONLD['brand'] = [
-                            'type' => 'Thing',
-                            'name' => array_get($identity, 'name'),
-                        ];
+                        if (isset(craft()->reviewsCoUkCraft) and isset($element->productCategory) and $element->productCategory->value === 'homeCharge') {
 
-                        $mainEntityOfPageJSONLD['offers'] = [
-                            'type' => 'Offer',
-                            'priceCurrency' => $element->productCurrency,
-                            'price' => $element->productPrice,
-                            'itemCondition' => "http://schema.org/NewCondition",
-                            'availability' => "http://schema.org/InStock",
-                            'seller' => [
-                                'type' => 'Organization',
-                                'name' => array_get($identity, 'name'),
-                            ],
-                        ];
-
-                        if (isset($element->productCategory) && $element->productCategory->value === 'homeCharge') {
                             $reviewsStats = craft()->reviewsCoUkCraft->getReviewsStatsForJsonLD();
                             $reviewsAverageRating = array_get($reviewsStats, 'average_rating', false);
                             $reviewsTotalNumber = array_get($reviewsStats, 'total_reviews', false);
@@ -2461,6 +2444,44 @@ class SeomaticService extends BaseApplicationComponent
                                 ];
                             }
                         }
+
+                        $mainEntityOfPageJSONLD['areaServed'] = [
+                            'type' => 'GeoShape',
+                            'addressCountry' => 'GB',
+                        ];
+
+                        $mainEntityOfPageJSONLD['audience'] = [
+                            'type' => 'Audience',
+                            'audienceType' => 'Electric vehicle owners',
+                        ];
+                        $mainEntityOfPageJSONLD['name'] = $element->productName;
+                        $mainEntityOfPageJSONLD['description'] = $element->productDescription;
+                        $mainEntityOfPageJSONLD['image'] = $element->productImage && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
+
+                        $mainEntityOfPageJSONLD['brand'] = [
+                            'type' => 'Organization',
+                            'name' => array_get($identity, 'name'),
+                        ];
+
+                        $mainEntityOfPageJSONLD['provider'] = [
+                            'type' => 'Organization',
+                            'name' => array_get($identity, 'name'),
+                        ];
+
+                        $mainEntityOfPageJSONLD['providerMobility'] = 'dynamic';
+
+                        $mainEntityOfPageJSONLD['offers'] = [
+                            'type' => 'Offer',
+                            'name' => 'Installation of the ' . $element->productName . ' and the ' . $element->productName,
+                            'price' => $element->productPrice,
+                            'priceCurrency' => $element->productCurrency,
+                            'itemCondition' => "http://schema.org/NewCondition",
+                            'availability' => "http://schema.org/InStock",
+                            'seller' => [
+                                'type' => 'Organization',
+                                'name' => array_get($identity, 'name'),
+                            ],
+                        ];
                     }
                 }
                 break;
