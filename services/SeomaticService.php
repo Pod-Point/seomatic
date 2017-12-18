@@ -5,10 +5,19 @@ use \crodas\TextRank\Config;
 use \crodas\TextRank\TextRank;
 use \crodas\TextRank\Summary;
 use \crodas\TextRank\Stopword;
-use Craft\Seomatic_MetaModel;
 
 class SeomaticService extends BaseApplicationComponent
 {
+    /**
+     * List of the different models of POD Point solo charger.
+     *
+     * @var array
+     */
+    const SOLO_CHARGER_MODELS = [
+        '3kw',
+        '7kw',
+        '22kw',
+    ];
 
     protected $entryMeta = null;
     protected $lastElement = null;
@@ -2422,67 +2431,7 @@ class SeomaticService extends BaseApplicationComponent
 
             case "Product":
                 {
-                    if ($element && isset($element->productName) && isset($element->productDescription) && isset($element->productCurrency) && isset($element->productPrice)) {
-                        // Overriding the type of the entity
-                        $mainEntityOfPageJSONLD['type'] = 'Service';
-
-                        if (isset(craft()->reviewsCoUkCraft) and isset($element->productCategory) and $element->productCategory->value === 'homeCharge') {
-
-                            $reviewsStats = craft()->reviewsCoUkCraft->getReviewsStatsForJsonLD();
-                            $reviewsAverageRating = array_get($reviewsStats, 'average_rating', false);
-                            $reviewsTotalNumber = array_get($reviewsStats, 'total_reviews', false);
-                            $reviewsBestRating = array_get($reviewsStats, 'bestRating', false);
-                            $reviewsWorstRating = array_get($reviewsStats, 'worstRating', false);
-
-                            if ($reviewsAverageRating and $reviewsTotalNumber and $reviewsBestRating and $reviewsWorstRating) {
-                                $mainEntityOfPageJSONLD['aggregateRating'] = [
-                                    'type' => 'AggregateRating',
-                                    'ratingValue' => (string) round($reviewsAverageRating, 1),
-                                    'reviewCount' => (string) number_format($reviewsTotalNumber),
-                                    'bestRating' => (string) $reviewsBestRating,
-                                    'worstRating' => (string) $reviewsWorstRating,
-                                ];
-                            }
-                        }
-
-                        $mainEntityOfPageJSONLD['areaServed'] = [
-                            'type' => 'GeoShape',
-                            'addressCountry' => 'GB',
-                        ];
-
-                        $mainEntityOfPageJSONLD['audience'] = [
-                            'type' => 'Audience',
-                            'audienceType' => 'Electric vehicle owners',
-                        ];
-                        $mainEntityOfPageJSONLD['name'] = $element->productName;
-                        $mainEntityOfPageJSONLD['description'] = $element->productDescription;
-                        $mainEntityOfPageJSONLD['image'] = $element->productImage && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
-
-                        $mainEntityOfPageJSONLD['brand'] = [
-                            'type' => 'Organization',
-                            'name' => array_get($identity, 'name'),
-                        ];
-
-                        $mainEntityOfPageJSONLD['provider'] = [
-                            'type' => 'Organization',
-                            'name' => array_get($identity, 'name'),
-                        ];
-
-                        $mainEntityOfPageJSONLD['providerMobility'] = 'dynamic';
-
-                        $mainEntityOfPageJSONLD['offers'] = [
-                            'type' => 'Offer',
-                            'name' => 'Installation of the ' . $element->productName . ' and the ' . $element->productName,
-                            'price' => $element->productPrice,
-                            'priceCurrency' => $element->productCurrency,
-                            'itemCondition' => "http://schema.org/NewCondition",
-                            'availability' => "http://schema.org/InStock",
-                            'seller' => [
-                                'type' => 'Organization',
-                                'name' => array_get($identity, 'name'),
-                            ],
-                        ];
-                    }
+                    $mainEntityOfPageJSONLD = $this->getServiceArrayForJsonLD($mainEntityOfPageJSONLD, $element, $identity);
                 }
                 break;
             }
@@ -2502,6 +2451,102 @@ class SeomaticService extends BaseApplicationComponent
         }
         return $mainEntityOfPageJSONLD;
     } /* -- getMainEntityOfPageJSONLD */
+
+    /**
+     * Generate array of parameters for JSON-LD `Service` page.
+     *
+     * @param array                   $mainEntityOfPageJSONLD
+     * @param \Craft\BaseElementModel $element
+     * @param array                   $identity
+     * @return array
+     */
+    protected function getServiceArrayForJsonLD(array $mainEntityOfPageJSONLD, BaseElementModel $element, array $identity)
+    {
+        if ($element && isset($element->productName) && isset($element->productDescription) && isset($element->productCurrency)) {
+            $mainEntityOfPageJSONLD['type'] = 'Service';
+
+            if (isset(craft()->reviewsCoUkCraft) && isset($element->productCategory) && $element->productCategory->value === 'homeCharge') {
+
+                $reviewsStats = craft()->reviewsCoUkCraft->getReviewsStatsForJsonLD();
+                $reviewsAverageRating = array_get($reviewsStats, 'average_rating', false);
+                $reviewsTotalNumber = array_get($reviewsStats, 'total_reviews', false);
+                $reviewsBestRating = array_get($reviewsStats, 'bestRating', false);
+                $reviewsWorstRating = array_get($reviewsStats, 'worstRating', false);
+
+                if ($reviewsAverageRating && $reviewsTotalNumber && $reviewsBestRating && $reviewsWorstRating) {
+                    $mainEntityOfPageJSONLD['aggregateRating'] = [
+                        'type' => 'AggregateRating',
+                        'ratingValue' => (string)round($reviewsAverageRating, 1),
+                        'reviewCount' => (string)number_format($reviewsTotalNumber),
+                        'bestRating' => (string)$reviewsBestRating,
+                        'worstRating' => (string)$reviewsWorstRating,
+                    ];
+                }
+            }
+
+            $mainEntityOfPageJSONLD['areaServed'] = [
+                'type' => 'GeoShape',
+                'addressCountry' => 'GB',
+            ];
+
+            $mainEntityOfPageJSONLD['audience'] = [
+                'type' => 'Audience',
+                'audienceType' => 'Electric vehicle owners',
+            ];
+
+            $mainEntityOfPageJSONLD['name'] = $element->productName;
+            $mainEntityOfPageJSONLD['description'] = $element->productDescription;
+            $mainEntityOfPageJSONLD['image'] = $element->productImage && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
+
+            $mainEntityOfPageJSONLD['brand'] = [
+                'type' => 'Organization',
+                'name' => array_get($identity, 'name'),
+            ];
+
+            $mainEntityOfPageJSONLD['provider'] = [
+                'type' => 'Organization',
+                'name' => array_get($identity, 'name'),
+            ];
+
+            $mainEntityOfPageJSONLD['providerMobility'] = 'dynamic';
+
+            $mainEntityOfPageJSONLD['offers'] = $this->getOffersArrayForJsonLD($element, $identity);
+        }
+
+        return $mainEntityOfPageJSONLD;
+    }
+
+    /**
+     * Generate an array of offers according to SOLO_CHARGER_MODELS elements for JSON-LD.
+     *
+     * @param \Craft\BaseElementModel $element
+     * @param array                   $identity
+     * @return array
+     */
+    protected function getOffersArrayForJsonLD(BaseElementModel $element, array $identity)
+    {
+        $offers = [];
+
+        foreach (self::SOLO_CHARGER_MODELS as $model) {
+
+            if (isset($element->{'product' . $model . 'Name'}) && isset($element->{'product' . $model . 'Price'})) {
+                $offers[] = [
+                    'type' => 'Offer',
+                    'name' => $element->{'product' . $model . 'Name'},
+                    'price' => $element->{'product' . $model . 'Price'},
+                    'priceCurrency' => $element->productCurrency,
+                    'itemCondition' => "http://schema.org/NewCondition",
+                    'availability' => "http://schema.org/InStock",
+                    'seller' => [
+                        'type' => 'Organization',
+                        'name' => array_get($identity, 'name'),
+                    ],
+                ];
+            }
+        }
+
+        return $offers;
+    }
 
 /* --------------------------------------------------------------------------------
     Get the Product JSON-LD
