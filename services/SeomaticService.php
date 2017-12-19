@@ -2431,7 +2431,31 @@ class SeomaticService extends BaseApplicationComponent
 
             case "Product":
                 {
+                    //@TODO: add checkbox to with handle isService and only if it's check call getServiceArrayForJsonLD()
                     $mainEntityOfPageJSONLD = $this->getServiceArrayForJsonLD($mainEntityOfPageJSONLD, $element, $identity);
+
+                    //@TODO: add new fields to seomatic configuration in order that the plugin used for reviews can be changed from the seomatic settings
+                    // - Put this in a function that take as a parameters the plugin's Service as a parameter which must implement the ReviewsServiceInterface
+                    if (isset(craft()->reviewsCoUkCraft ) && isset($element->productCategory) && $element->productCategory->value === 'homeCharge') {
+
+                        $reviewsStats = craft()->reviewsCoUkCraft->getReviewsStatsForJsonLD();
+                        $reviewsAverageRating = array_get($reviewsStats, 'average_rating', false);
+                        $reviewsTotalNumber = array_get($reviewsStats, 'total_reviews', false);
+                        $reviewsBestRating = array_get($reviewsStats, 'bestRating', false);
+                        $reviewsWorstRating = array_get($reviewsStats, 'worstRating', false);
+
+                        if ($reviewsAverageRating && $reviewsTotalNumber && $reviewsBestRating && $reviewsWorstRating) {
+                            $mainEntityOfPageJSONLD['aggregateRating'] = [
+                                'type' => 'AggregateRating',
+                                'ratingValue' => (string)round($reviewsAverageRating, 1),
+                                'reviewCount' => (string)number_format($reviewsTotalNumber),
+                                'bestRating' => (string)$reviewsBestRating,
+                                'worstRating' => (string)$reviewsWorstRating,
+                            ];
+                        }
+                    }
+
+                    $mainEntityOfPageJSONLD['offers'] = $this->getOffersArrayForJsonLD($element, $identity);
                 }
                 break;
             }
@@ -2465,25 +2489,7 @@ class SeomaticService extends BaseApplicationComponent
         if ($element && isset($element->productName) && isset($element->productDescription) && isset($element->productCurrency)) {
             $mainEntityOfPageJSONLD['type'] = 'Service';
 
-            if (isset(craft()->reviewsCoUkCraft) && isset($element->productCategory) && $element->productCategory->value === 'homeCharge') {
-
-                $reviewsStats = craft()->reviewsCoUkCraft->getReviewsStatsForJsonLD();
-                $reviewsAverageRating = array_get($reviewsStats, 'average_rating', false);
-                $reviewsTotalNumber = array_get($reviewsStats, 'total_reviews', false);
-                $reviewsBestRating = array_get($reviewsStats, 'bestRating', false);
-                $reviewsWorstRating = array_get($reviewsStats, 'worstRating', false);
-
-                if ($reviewsAverageRating && $reviewsTotalNumber && $reviewsBestRating && $reviewsWorstRating) {
-                    $mainEntityOfPageJSONLD['aggregateRating'] = [
-                        'type' => 'AggregateRating',
-                        'ratingValue' => (string)round($reviewsAverageRating, 1),
-                        'reviewCount' => (string)number_format($reviewsTotalNumber),
-                        'bestRating' => (string)$reviewsBestRating,
-                        'worstRating' => (string)$reviewsWorstRating,
-                    ];
-                }
-            }
-
+            //@TODO BEGIN : all those informations must be configurable from the seomatic settings
             $mainEntityOfPageJSONLD['areaServed'] = [
                 'type' => 'GeoShape',
                 'addressCountry' => 'GB',
@@ -2510,7 +2516,7 @@ class SeomaticService extends BaseApplicationComponent
 
             $mainEntityOfPageJSONLD['providerMobility'] = 'dynamic';
 
-            $mainEntityOfPageJSONLD['offers'] = $this->getOffersArrayForJsonLD($element, $identity);
+            //@TODO END : all those informations must be configurable from the seomatic settings
         }
 
         return $mainEntityOfPageJSONLD;
@@ -2526,24 +2532,22 @@ class SeomaticService extends BaseApplicationComponent
     protected function getOffersArrayForJsonLD(BaseElementModel $element, array $identity)
     {
         $offers = [];
-
-        foreach (self::SOLO_CHARGER_MODELS as $model) {
-
-            if (isset($element->{'product' . $model . 'Name'}) && isset($element->{'product' . $model . 'Price'})) {
-                $offers[] = [
-                    'type' => 'Offer',
-                    'name' => $element->{'product' . $model . 'Name'},
-                    'price' => $element->{'product' . $model . 'Price'},
-                    'priceCurrency' => $element->productCurrency,
-                    'itemCondition' => "http://schema.org/NewCondition",
-                    'availability' => "http://schema.org/InStock",
-                    'seller' => [
-                        'type' => 'Organization',
-                        'name' => array_get($identity, 'name'),
-                    ],
-                ];
-            }
-        }
+        //@TODO:
+        // -remove SOLO_CHARGER_MODELS and base the model to a new custom fields added to product pages
+        // -do not display anything if the field is not defined
+        // -allow displaying of offers if the product page is not a service
+//        $offers[] = [
+//            'type' => 'Offer',
+//            'name' => $element->{'product' . $model . 'Name'},
+//            'price' => $element->{'product' . $model . 'Price'},
+//            'priceCurrency' => $element->productCurrency,
+//            'itemCondition' => "http://schema.org/NewCondition",
+//            'availability' => "http://schema.org/InStock",
+//            'seller' => [
+//                'type' => 'Organization',
+//                'name' => array_get($identity, 'name'),
+//            ],
+//        ];
 
         return $offers;
     }
