@@ -16,12 +16,12 @@ interface ReviewsServiceInterface
     public function getReviews(string $uri, string $cacheId = 'reviewsCache', array $parameters = []);
 
     /**
-     * Used to retrieve formatted reviews.
+     * Used to retrieve formatted reviews or statistics about those reviews.
      *
      * @param array $reviews
-     * @param bool  $getStatistic
+     * @param bool  $statisticsOnly
      *
      * @return array
      */
-    public function transformReviews(array $reviews, bool $getStatistic = true);
+    public function transformReviews(array $reviews, bool $statisticsOnly = true);
 }
