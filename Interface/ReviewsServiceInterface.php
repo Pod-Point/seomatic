@@ -1,6 +1,6 @@
 <?php
 
-namespace Craft;
+namespace Seomatic\CustomInterface;
 
 interface ReviewsServiceInterface
 {

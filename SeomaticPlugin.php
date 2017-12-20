@@ -138,7 +138,17 @@ class SeomaticPlugin extends BasePlugin
     protected function defineSettings()
     {
         return array(
-            'pluginNameOverride'  => AttributeType::String
+            'pluginNameOverride'      => AttributeType::String,
+
+            // Reviews settings
+            'reviewsPluginHandle'     => AttributeType::String,
+            'reviewsProductUri'       => AttributeType::String,
+            'reviewsServiceUri'       => AttributeType::String,
+
+            // Service settings
+            'serviceAreaServedISO'    => AttributeType::String,
+            'serviceAudienceType'     => AttributeType::String,
+            'serviceProviderMobility' => AttributeType::String,
         );
     }
 

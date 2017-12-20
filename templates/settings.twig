@@ -57,6 +57,65 @@
         first: true,
     }) }}
 
+    <h3>Reviews settings</h3>
+
+    {{ forms.textField({
+        label: "Review plugin's handle in camel case e.g.: `someReviewPluginHandle`"|t,
+        instructions: "The handle of the review plugin to use for collecting reviews."|t,
+        id: 'reviewsPluginHandle',
+        name: 'settings[reviewsPluginHandle]',
+        value: settings.reviewsPluginHandle,
+        autofocus: true,
+        first: true,
+    }) }}
+
+    {{ forms.textField({
+        label: "URI to fetch products reviews"|t,
+        instructions: "The URI to fetch products reviews."|t,
+        id: 'reviewsProductUri',
+        name: 'settings[reviewsProductUri]',
+        value: settings.reviewsProductUri,
+        require: false
+    }) }}
+
+    {{ forms.textField({
+        label: "URI to fetch services reviews"|t,
+        instructions: "The URI to fetch services reviews."|t,
+        id: 'reviewsServiceUri',
+        name: 'settings[reviewsServiceUri]',
+        value: settings.reviewsServiceUri,
+        require: false
+    }) }}
+
+    <h3>Services settings</h3>
+
+    {{ forms.textField({
+        label: "Default service area served"|t,
+        instructions: "The country. For example, USA. You can also provide the two-letter <a href=\"http://en.wikipedia.org/wiki/ISO_3166-1\">ISO 3166-1 alpha-2 country code</a>."|t,
+        id: 'serviceAreaServedISO',
+        name: 'settings[serviceAreaServedISO]',
+        value: settings.serviceAreaServedISO,
+        require: false
+    }) }}
+
+    {{ forms.textField({
+        label: "Default audience type"|t,
+        instructions: "The target group associated with a given audience (e.g. veterans, car owners, musicians, etc.)."|t,
+        id: 'serviceAudienceType',
+        name: 'settings[serviceAudienceType]',
+        value: settings.serviceAudienceType,
+        require: false
+    }) }}
+
+    {{ forms.textField({
+        label: "Default Provider mobility"|t,
+        instructions: "Indicates the mobility of a provided service (e.g. 'static', 'dynamic')."|t,
+        id: 'serviceProviderMobility',
+        name: 'settings[serviceProviderMobility]',
+        value: settings.serviceProviderMobility,
+        require: false
+    }) }}
+
 <!-- Needed for for Craft < 2.5 -->
 
         {% if craft.app.version < 2.5 %}
