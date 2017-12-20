@@ -2432,9 +2432,6 @@ class SeomaticService extends BaseApplicationComponent
                     if (isset($settings->reviewsPluginHandle) && isset(craft()->{$settings->reviewsPluginHandle})) {
                         $mainEntityOfPageJSONLD = $this->getAggregrateRatingForJsonLD(craft()->{$settings->reviewsPluginHandle}, $mainEntityOfPageJSONLD, $element, $settings);
                     }
-
-
-
                     $mainEntityOfPageJSONLD['offers'] = $this->getOffersArrayForJsonLD($element, $identity);
                 }
                 break;
@@ -2500,6 +2497,7 @@ class SeomaticService extends BaseApplicationComponent
                 ];
             }
         }
+
         return $mainEntityOfPageJSONLD;
     }
 
@@ -2568,12 +2566,11 @@ class SeomaticService extends BaseApplicationComponent
     {
         $offers = [];
 
-        if (isset($element->productOffers) && isset($element->productCurrency))
-        {
-            foreach($element->productOffers as $offer)
-            {
-                if (isset($offer->offerName) && isset($offer->offerPrice))
-                {
+        if (isset($element->productOffers) && isset($element->productCurrency)) {
+
+            foreach($element->productOffers as $offer) {
+
+                if (isset($offer->offerName) && isset($offer->offerPrice)) {
                     $offers[] = [
                         'type' => 'Offer',
                         'name' => $offer->offerName,
