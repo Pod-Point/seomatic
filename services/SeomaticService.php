@@ -2515,7 +2515,16 @@ class SeomaticService extends BaseApplicationComponent
      */
     protected function getServiceArrayForJsonLD(array $mainEntityOfPageJSONLD, BaseElementModel $element, array $identity, BaseModel $settings)
     {
-        if ($element && isset($element->productName) && isset($element->productDescription) && isset($element->productCurrency)) {
+        if (
+            $element &&
+            isset($element->productName) &&
+            isset($element->productDescription) &&
+            isset($element->productCurrency) &&
+            $settings &&
+            isset($settings->serviceAreaServedISO) &&
+            isset($settings->serviceAudienceType) &&
+            isset($settings->serviceProviderMobility)
+        ) {
             $mainEntityOfPageJSONLD['type'] = 'Service';
 
             $mainEntityOfPageJSONLD['areaServed'] = [
@@ -2530,7 +2539,7 @@ class SeomaticService extends BaseApplicationComponent
 
             $mainEntityOfPageJSONLD['name'] = $element->productName;
             $mainEntityOfPageJSONLD['description'] = $element->productDescription;
-            $mainEntityOfPageJSONLD['image'] = $element->productImage && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
+            $mainEntityOfPageJSONLD['image'] = isset($element->productImage) && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
 
             $mainEntityOfPageJSONLD['brand'] = [
                 'type' => 'Organization',
