@@ -2432,6 +2432,7 @@ class SeomaticService extends BaseApplicationComponent
                     if (isset($settings->reviewsPluginHandle) && isset(craft()->{$settings->reviewsPluginHandle})) {
                         $mainEntityOfPageJSONLD = $this->getAggregrateRatingForJsonLD(craft()->{$settings->reviewsPluginHandle}, $mainEntityOfPageJSONLD, $element, $settings);
                     }
+
                     $mainEntityOfPageJSONLD['offers'] = $this->getOffersArrayForJsonLD($element, $identity);
                 }
                 break;
@@ -2566,24 +2567,25 @@ class SeomaticService extends BaseApplicationComponent
     {
         $offers = [];
 
-        if (isset($element->productOffers) && isset($element->productCurrency)) {
+        if (!isset($element->productOffers) && !isset($element->productCurrency)) {
+            return $offers;
+        }
 
-            foreach($element->productOffers as $offer) {
+        foreach($element->productOffers as $offer) {
 
-                if (isset($offer->offerName) && isset($offer->offerPrice)) {
-                    $offers[] = [
-                        'type' => 'Offer',
-                        'name' => $offer->offerName,
-                        'price' => $offer->offerPrice,
-                        'priceCurrency' => $element->productCurrency,
-                        'itemCondition' => "http://schema.org/NewCondition",
-                        'availability' => "http://schema.org/InStock",
-                        'seller' => [
-                            'type' => 'Organization',
-                            'name' => array_get($identity, 'name'),
-                        ],
-                    ];
-                }
+            if (isset($offer->offerName) && isset($offer->offerPrice)) {
+                $offers[] = [
+                    'type' => 'Offer',
+                    'name' => $offer->offerName,
+                    'price' => $offer->offerPrice,
+                    'priceCurrency' => $element->productCurrency,
+                    'itemCondition' => "http://schema.org/NewCondition",
+                    'availability' => "http://schema.org/InStock",
+                    'seller' => [
+                        'type' => 'Organization',
+                        'name' => array_get($identity, 'name'),
+                    ],
+                ];
             }
         }
 
