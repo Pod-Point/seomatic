@@ -5,11 +5,12 @@ use \crodas\TextRank\Config;
 use \crodas\TextRank\TextRank;
 use \crodas\TextRank\Summary;
 use \crodas\TextRank\Stopword;
-use Craft\Seomatic_MetaModel;
+
+use Seomatic\CustomInterface\ReviewsServiceInterface;
+
 
 class SeomaticService extends BaseApplicationComponent
 {
-
     protected $entryMeta = null;
     protected $lastElement = null;
     protected $entrySeoCommerceVariants = null;
@@ -1959,7 +1960,7 @@ class SeomaticService extends BaseApplicationComponent
         $creator['siteCreatorSubType'] = "";
         $creator['siteCreatorSpecificType'] = "";
 
-/* -- Handle migrating the old way of storing siteCreatorType 
+/* -- Handle migrating the old way of storing siteCreatorType
         $creator['siteCreatorSubType'] = $settings['siteCreatorSubType'];
         $creator['siteCreatorSpecificType'] = $settings['siteCreatorSpecificType'];
 
@@ -2422,42 +2423,17 @@ class SeomaticService extends BaseApplicationComponent
 
             case "Product":
                 {
-                    if ($element && isset($element->productName) && isset($element->productDescription) && isset($element->productCurrency) && isset($element->productPrice)) {
-                        $mainEntityOfPageJSONLD['name'] = $element->productName;
-                        $mainEntityOfPageJSONLD['description'] = $element->productDescription;
-                        $mainEntityOfPageJSONLD['image'] = $element->productImage && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
+                    $settings = craft()->plugins->getPlugin('seomatic')->getSettings();
 
-                        $mainEntityOfPageJSONLD['brand'] = [
-                            'type' => 'Thing',
-                            'name' => array_get($identity, 'name'),
-                        ];
-
-                        $mainEntityOfPageJSONLD['offers'] = [
-                            'type' => 'Offer',
-                            'priceCurrency' => $element->productCurrency,
-                            'price' => $element->productPrice,
-                            'itemCondition' => "http://schema.org/NewCondition",
-                            'availability' => "http://schema.org/InStock",
-                            'seller' => [
-                                'type' => 'Organization',
-                                'name' => array_get($identity, 'name'),
-                            ],
-                        ];
-
-                        if (isset($element->productCategory) && $element->productCategory->value === 'homeCharge') {
-                            $reviewsStats = craft()->reviewsApi_reviews->getTotalReviewStats();
-                            $reviewsAverageRating = array_get($reviewsStats, 'average_rating');
-                            $reviewsTotalNumber = array_get($reviewsStats, 'total_reviews');
-
-                            if ($reviewsAverageRating && $reviewsTotalNumber) {
-                                $mainEntityOfPageJSONLD['aggregateRating'] = [
-                                    'type' => 'AggregateRating',
-                                    'ratingValue' => (string) round($reviewsAverageRating, 1),
-                                    'reviewCount' => (string) number_format($reviewsTotalNumber),
-                                ];
-                            }
-                        }
+                    if ($element->productIsService->value) {
+                        $mainEntityOfPageJSONLD = $this->getServiceArrayForJsonLD($mainEntityOfPageJSONLD, $element, $identity, $settings);
                     }
+
+                    if (isset($settings->reviewsPluginHandle) && isset(craft()->{$settings->reviewsPluginHandle})) {
+                        $mainEntityOfPageJSONLD = $this->getAggregrateRatingForJsonLD(craft()->{$settings->reviewsPluginHandle}, $mainEntityOfPageJSONLD, $element, $settings);
+                    }
+
+                    $mainEntityOfPageJSONLD['offers'] = $this->getOffersArrayForJsonLD($element, $identity);
                 }
                 break;
             }
@@ -2477,6 +2453,144 @@ class SeomaticService extends BaseApplicationComponent
         }
         return $mainEntityOfPageJSONLD;
     } /* -- getMainEntityOfPageJSONLD */
+
+    /**
+     * Generate array of parameters for JSON-LD aggregate rating.
+     *
+     * @param ReviewsServiceInterface $plugin
+     * @param array                   $mainEntityOfPageJSONLD
+     * @param BaseElementModel        $element
+     * @param BaseModel               $settings
+     *
+     * @return array
+     */
+    protected function getAggregrateRatingForJsonLD(ReviewsServiceInterface $plugin, array $mainEntityOfPageJSONLD, BaseElementModel $element, BaseModel $settings)
+    {
+        if (isset($element->productCategory) && $element->productCategory->value === 'homeCharge')
+        {
+            if (isset($element->productIsService) && $element->productIsService->value && isset($settings->reviewsServiceUri)) {
+                $uri = $settings->reviewsServiceUri;
+                $cacheId = 'reviewsServices';
+
+            } elseif (isset($settings->reviewsProductUri)) {
+                $uri = $settings->reviewsProductUri;
+                $cacheId = 'reviewsProducts';
+
+            } else {
+                return $mainEntityOfPageJSONLD;
+            }
+
+            $reviews = $plugin->getReviews($uri, $cacheId);
+            $reviewsStats = $plugin->transformReviews($reviews);
+
+            $reviewsAverageRating = array_get($reviewsStats, 'averageRating', false);
+            $reviewsTotalNumber = array_get($reviewsStats, 'totalReviews', false);
+            $reviewsBestRating = array_get($reviewsStats, 'bestRating', false);
+            $reviewsWorstRating = array_get($reviewsStats, 'worstRating', false);
+
+            if ($reviewsAverageRating && $reviewsTotalNumber && $reviewsBestRating && $reviewsWorstRating) {
+                $mainEntityOfPageJSONLD['aggregateRating'] = [
+                    'type' => 'AggregateRating',
+                    'ratingValue' => (string)round($reviewsAverageRating, 1),
+                    'reviewCount' => (string)number_format($reviewsTotalNumber),
+                    'bestRating' => (string)$reviewsBestRating,
+                    'worstRating' => (string)$reviewsWorstRating,
+                ];
+            }
+        }
+
+        return $mainEntityOfPageJSONLD;
+    }
+
+    /**
+     * Generate array of parameters for JSON-LD `Service` page.
+     *
+     * @param array                   $mainEntityOfPageJSONLD
+     * @param \Craft\BaseElementModel $element
+     * @param array                   $identity
+     * @param BaseModel               $settings
+     *
+     * @return array
+     */
+    protected function getServiceArrayForJsonLD(array $mainEntityOfPageJSONLD, BaseElementModel $element, array $identity, BaseModel $settings)
+    {
+        if (
+            $element &&
+            isset($element->productName) &&
+            isset($element->productDescription) &&
+            isset($element->productCurrency) &&
+            $settings &&
+            isset($settings->serviceAreaServedISO) &&
+            isset($settings->serviceAudienceType) &&
+            isset($settings->serviceProviderMobility)
+        ) {
+            $mainEntityOfPageJSONLD['type'] = 'Service';
+
+            $mainEntityOfPageJSONLD['areaServed'] = [
+                'type' => 'GeoShape',
+                'addressCountry' => $settings->serviceAreaServedISO,
+            ];
+
+            $mainEntityOfPageJSONLD['audience'] = [
+                'type' => 'Audience',
+                'audienceType' => $settings->serviceAudienceType,
+            ];
+
+            $mainEntityOfPageJSONLD['name'] = $element->productName;
+            $mainEntityOfPageJSONLD['description'] = $element->productDescription;
+            $mainEntityOfPageJSONLD['image'] = isset($element->productImage) && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
+
+            $mainEntityOfPageJSONLD['brand'] = [
+                'type' => 'Organization',
+                'name' => array_get($identity, 'name'),
+            ];
+
+            $mainEntityOfPageJSONLD['provider'] = [
+                'type' => 'Organization',
+                'name' => array_get($identity, 'name'),
+            ];
+
+            $mainEntityOfPageJSONLD['providerMobility'] = $settings->serviceProviderMobility;
+        }
+
+        return $mainEntityOfPageJSONLD;
+    }
+
+    /**
+     * Generate an array of offers according to SOLO_CHARGER_MODELS elements for JSON-LD.
+     *
+     * @param \Craft\BaseElementModel $element
+     * @param array                   $identity
+     * @return array
+     */
+    protected function getOffersArrayForJsonLD(BaseElementModel $element, array $identity)
+    {
+        $offers = [];
+
+        if (!isset($element->productOffers) && !isset($element->productCurrency)) {
+            return $offers;
+        }
+
+        foreach($element->productOffers as $offer) {
+
+            if (isset($offer->offerName) && isset($offer->offerPrice)) {
+                $offers[] = [
+                    'type' => 'Offer',
+                    'name' => $offer->offerName,
+                    'price' => $offer->offerPrice,
+                    'priceCurrency' => $element->productCurrency,
+                    'itemCondition' => "http://schema.org/NewCondition",
+                    'availability' => "http://schema.org/InStock",
+                    'seller' => [
+                        'type' => 'Organization',
+                        'name' => array_get($identity, 'name'),
+                    ],
+                ];
+            }
+        }
+
+        return $offers;
+    }
 
 /* --------------------------------------------------------------------------------
     Get the Product JSON-LD
@@ -2718,7 +2832,7 @@ function parseAsTemplate($templateStr, $element)
                     }
                     else
                         $meta['seoImage'] = '';
-                    /* -- Keep this around for transforms, height, width, etc. 
+                    /* -- Keep this around for transforms, height, width, etc.
                     unset($meta['seoImageId']);
                     */
                 }
