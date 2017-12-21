@@ -16,7 +16,7 @@ class Seomatic_MetaRecord extends BaseRecord
             'elementId'			        => array(AttributeType::Number, 'default' => 0),
             'metaType'                  => array(AttributeType::Enum, 'values' => "default,template", 'default' => 'template'),
             'metaPath'                  => array(AttributeType::String, 'default' => ''),
-            'seoShowIdentity'           => array(AttributeType::Bool, 'default' => false),
+            'seoShowIdentity'           => array(AttributeType::Bool, 'default' => true),
             'seoShowWebsite'            => array(AttributeType::Bool, 'default' => false),
             'seoShowPlace'              => array(AttributeType::Bool, 'default' => false),
             'seoShowMainEntity'         => array(AttributeType::Bool, 'default' => false),

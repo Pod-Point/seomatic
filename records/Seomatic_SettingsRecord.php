@@ -25,7 +25,7 @@ class Seomatic_SettingsRecord extends BaseRecord
             'siteSeoDescription'            	=> array(AttributeType::String, 'default' => ''),
             'siteSeoKeywords'               	=> array(AttributeType::String, 'default' => ''),
             'siteSeoImageTransform'             => array(AttributeType::String, 'maxLength' => 100, 'default' => ''),
-            'siteSeoShowIdentity'               => array(AttributeType::Bool, 'default' => false),
+            'siteSeoShowIdentity'               => array(AttributeType::Bool, 'default' => true),
             'siteSeoShowWebsite'                => array(AttributeType::Bool, 'default' => false),
             'siteSeoShowPlace'                  => array(AttributeType::Bool, 'default' => false),
             'siteSeoShowMainEntity'             => array(AttributeType::Bool, 'default' => false),
