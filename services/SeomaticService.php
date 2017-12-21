@@ -2567,7 +2567,7 @@ class SeomaticService extends BaseApplicationComponent
     {
         $offers = [];
 
-        if (!isset($element->productOffers) && !isset($element->productCurrency)) {
+        if (!isset($element->productOffers) || !isset($element->productCurrency)) {
             return $offers;
         }
 
