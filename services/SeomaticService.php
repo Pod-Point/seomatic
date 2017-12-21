@@ -2425,7 +2425,7 @@ class SeomaticService extends BaseApplicationComponent
                 {
                     $settings = craft()->plugins->getPlugin('seomatic')->getSettings();
 
-                    if ($element->productIsService->value) {
+                    if (isset($element->productIsService) && isset($element->productIsService->value) && $element->productIsService->value) {
                         $mainEntityOfPageJSONLD = $this->getServiceArrayForJsonLD($mainEntityOfPageJSONLD, $element, $identity, $settings);
                     }
 
