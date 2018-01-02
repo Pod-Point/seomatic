@@ -2524,7 +2524,7 @@ class SeomaticService extends BaseApplicationComponent
             isset($settings->serviceAudienceType) &&
             isset($settings->serviceProviderMobility)
         ) {
-            $mainEntityOfPageJSONLD['type'] = 'Service';
+            /**$mainEntityOfPageJSONLD['type'] = 'Service';
 
             $mainEntityOfPageJSONLD['areaServed'] = [
                 'type' => 'GeoShape',
@@ -2534,7 +2534,7 @@ class SeomaticService extends BaseApplicationComponent
             $mainEntityOfPageJSONLD['audience'] = [
                 'type' => 'Audience',
                 'audienceType' => $settings->serviceAudienceType,
-            ];
+            ];*/
 
             $mainEntityOfPageJSONLD['name'] = $element->productName;
             $mainEntityOfPageJSONLD['description'] = $element->productDescription;
@@ -2545,12 +2545,12 @@ class SeomaticService extends BaseApplicationComponent
                 'name' => array_get($identity, 'name'),
             ];
 
-            $mainEntityOfPageJSONLD['provider'] = [
+            /**$mainEntityOfPageJSONLD['provider'] = [
                 'type' => 'Organization',
                 'name' => array_get($identity, 'name'),
             ];
 
-            $mainEntityOfPageJSONLD['providerMobility'] = $settings->serviceProviderMobility;
+            $mainEntityOfPageJSONLD['providerMobility'] = $settings->serviceProviderMobility;*/
         }
 
         return $mainEntityOfPageJSONLD;
