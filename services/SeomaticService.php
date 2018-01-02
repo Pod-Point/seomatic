@@ -2478,7 +2478,11 @@ class SeomaticService extends BaseApplicationComponent
      */
     protected function getAggregrateRatingForJsonLD(ReviewsServiceInterface $plugin, array $mainEntityOfPageJSONLD, BaseElementModel $element, BaseModel $settings)
     {
-        if (isset($element->productCategory) && $element->productCategory->value === 'homeCharge')
+        if (isset($element->productCategory) &&
+            $element->productCategory->value === 'homeCharge' &&
+            isset($element->productDisplayRating) &&
+            isset($element->productDisplayRating->value) &&
+            $element->productDisplayRating->value)
         {
             if (isset($element->productIsService) && $element->productIsService->value && isset($settings->reviewsServiceUri)) {
                 $uri = $settings->reviewsServiceUri;
