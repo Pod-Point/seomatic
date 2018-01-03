@@ -63,7 +63,7 @@
 
     {% if field is defined %}
         {{ forms.selectField({
-            label: "The category of products where you want to display ratings."|t,
+            label: "The category of products where you want to display aggregate ratings."|t,
             instructions: "If this field is empty, ratings won't be displayed."|t,
             fieldClass: 'nomarginfield',
             id: 'productCategoryName',
@@ -102,6 +102,17 @@
         require: false
     }) }}
 
+    <h3>Products & Services settings</h3>
+
+    {{ forms.textField({
+        label: "Default audience type"|t,
+        instructions: "The target group associated with a given audience (e.g. veterans, car owners, musicians, etc.)."|t,
+        id: 'serviceAudienceType',
+        name: 'settings[serviceAudienceType]',
+        value: settings.serviceAudienceType,
+        require: false
+    }) }}
+
     <h3>Services settings</h3>
 
     {{ forms.textField({
@@ -110,15 +121,6 @@
         id: 'serviceAreaServedISO',
         name: 'settings[serviceAreaServedISO]',
         value: settings.serviceAreaServedISO,
-        require: false
-    }) }}
-
-    {{ forms.textField({
-        label: "Default audience type"|t,
-        instructions: "The target group associated with a given audience (e.g. veterans, car owners, musicians, etc.)."|t,
-        id: 'serviceAudienceType',
-        name: 'settings[serviceAudienceType]',
-        value: settings.serviceAudienceType,
         require: false
     }) }}
 
