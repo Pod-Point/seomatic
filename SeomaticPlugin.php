@@ -149,6 +149,9 @@ class SeomaticPlugin extends BasePlugin
             'serviceAreaServedISO'    => AttributeType::String,
             'serviceAudienceType'     => AttributeType::String,
             'serviceProviderMobility' => AttributeType::String,
+
+            // Product Category name
+            'productCategoryName'     => AttributeType::String,
         );
     }
 

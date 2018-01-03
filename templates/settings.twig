@@ -59,6 +59,20 @@
 
     <h3>Reviews settings</h3>
 
+    {% set field = craft.fields.getFieldByHandle('productCategory') %}
+
+    {% if field is defined %}
+        {{ forms.selectField({
+            label: "The category of products where you want to display ratings."|t,
+            instructions: "If this field is empty, ratings won't be displayed."|t,
+            fieldClass: 'nomarginfield',
+            id: 'productCategoryName',
+            options: field.settings.options,
+            name: 'settings[productCategoryName]',
+            value: settings.productCategoryName,
+        }) }}
+    {% endif %}
+
     {{ forms.textField({
         label: "Review plugin's handle in camel case e.g.: `someReviewPluginHandle`"|t,
         instructions: "The handle of the review plugin to use for collecting reviews."|t,
@@ -67,6 +81,7 @@
         value: settings.reviewsPluginHandle,
         autofocus: true,
         first: true,
+        require: false
     }) }}
 
     {{ forms.textField({
