@@ -2425,18 +2425,6 @@ class SeomaticService extends BaseApplicationComponent
                 {
                     $settings = craft()->plugins->getPlugin('seomatic')->getSettings();
 
-                    if (isset($element->productName) && isset($element->productDescription)) {
-                        $mainEntityOfPageJSONLD['name'] = $element->productName;
-                        $mainEntityOfPageJSONLD['description'] = $element->productDescription;
-                    }
-
-                    $mainEntityOfPageJSONLD['image'] = isset($element->productImage) && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
-
-                    $mainEntityOfPageJSONLD['brand'] = [
-                        'type' => 'Organization',
-                        'name' => array_get($identity, 'name'),
-                    ];
-
                     if (isset($element->productIsService) && isset($element->productIsService->value) && $element->productIsService->value) {
                         $mainEntityOfPageJSONLD = $this->getServiceArrayForJsonLD($mainEntityOfPageJSONLD, $element, $identity, $settings);
                     }
@@ -2551,6 +2539,15 @@ class SeomaticService extends BaseApplicationComponent
             $mainEntityOfPageJSONLD['audience'] = [
                 'type' => 'Audience',
                 'audienceType' => $settings->serviceAudienceType,
+            ];
+
+            $mainEntityOfPageJSONLD['name'] = $element->productName;
+            $mainEntityOfPageJSONLD['description'] = $element->productDescription;
+            $mainEntityOfPageJSONLD['image'] = isset($element->productImage) && $element->productImage->first() ? $element->productImage->first()->getUrl() : '';
+
+            $mainEntityOfPageJSONLD['brand'] = [
+                'type' => 'Organization',
+                'name' => array_get($identity, 'name'),
             ];
 
             $mainEntityOfPageJSONLD['provider'] = [
