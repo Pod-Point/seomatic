@@ -2519,7 +2519,7 @@ class SeomaticService extends BaseApplicationComponent
                 $mainEntityOfPageJSONLD['aggregateRating'] = [
                     'type' => 'AggregateRating',
                     'ratingValue' => (string)round($reviewsAverageRating, 1),
-                    'reviewCount' => (string)number_format($reviewsTotalNumber),
+                    'reviewCount' => (string)number_format($reviewsTotalNumber, 0, '.', ''),
                     'bestRating' => (string)$reviewsBestRating,
                     'worstRating' => (string)$reviewsWorstRating,
                 ];
