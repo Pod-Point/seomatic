@@ -1,6 +1,6 @@
 # SEOmatic plugin for Craft
 
-A turnkey SEO implementation for Craft CMS that is comprehensive, powerful, and flexible.
+This repository is a fork of `https://github.com/nystudio107/seomatic`.
 
 ![Screenshot](resources/screenshots/seomatic01.png)
 
@@ -8,54 +8,74 @@ A turnkey SEO implementation for Craft CMS that is comprehensive, powerful, and 
 
 To install SEOmatic, follow these steps:
 
-1. Download & unzip the file and place the `seomatic` directory into your `craft/plugins` directory
-2.  -OR- do a `git clone https://github.com/nystudio107/seomatic.git` directly into your `craft/plugins` folder.  You can then update it with `git pull`
-3.  -OR- install with Composer via `composer require nystudio107/seomatic`
-4. Install plugin in the Craft Control Panel under Settings > Plugins
-5. The plugin folder should be named `seomatic` for Craft to see it.  GitHub recently started appending `-master` (the branch name) to the name of the folder for zip file downloads.
+1. install with Composer via `composer require pod-point/seomatic`
+2. Install plugin in the Craft Control Panel under Settings > Plugins
 
 SEOmatic works on Craft 2.4.x, Craft 2.5.x, and Craft 2.6.x.
 
 The SEOmetrics feature requires PHP 5.4 or later and that you have the [php-xml extension](http://osticket.com/forum/discussion/8702/php-fatal-error-call-to-undefined-function-utf8-encode-error-message) installed.
 
+[Here you can see the documentation of the original repository](https://github.com/nystudio107/seomatic) we highly recommend to read it in order to have an overview of how it works.
+[Here you can see the wiki of the original repository](https://github.com/nystudio107/seomatic/wiki).
+
 ## Overview
 
-Learn more about SEO: [Modern SEO: Snake Oil vs. Substance](https://nystudio107.com/blog/modern-seo-snake-oil-vs-substance)
+- We deleted all implementation of dublin core meta-datas from the original repository.
+- We added the possibility for you to turn off separately JSON-LD Identity/Website/Place/Main entity per page.
+- We added the possibility for you to specify a review plugin like [our reviewscoukcraft plugin](https://github.com/Pod-Point/reviewscoukcraft) for aggregate ratings related to product only [http://schema.org/AggregateRating](http://schema.org/AggregateRating).
+- We added the possibility to specify all the offers displayed in your Product/Service page: [http://schema.org/Offer](http://schema.org/Offer)
+- We added the possibility to specify in JSON-LD that your product page iz `Service`: [http://schema.org/Service](http://schema.org/Service)
 
-Learn more about JSON-LD Structured Data: [JSON-LD, Structured Data and Erotica](https://nystudio107.com/blog/json-ld-structured-data-and-erotica)
+## Turn off separately JSON-LD Identity/Website/Place/Main entity per page
 
-### Video overview of SEOmatic:
+- Edit your page in Entries
+- Click on SEO tab
+- You should see the following toggle buttons:
 
-[![Video Overview of SEOmatic](https://img.youtube.com/vi/f1149YVEF_0/0.jpg)](https://www.youtube.com/watch?v=f1149YVEF_0)
+![Screenshot](resources/screenshots/turn-off-identity-website-place-main-entity.png)
 
-SEOmatic allows you to quickly get a website up and running with a robust, comprehensive SEO strategy.  It is also implemented in a Craft-y way, in that it is also flexible and customizable.  The SEOmetrics feature scans your content for focus keywords, and offers analysis on how to improve your SEO.
+## Use a reviews plugin
 
-It implements [JSON-LD](https://developers.google.com/schemas/formats/json-ld?hl=en) microdata, [Dublin Core](http://dublincore.org) core metadata, [Twitter Cards](https://dev.twitter.com/cards/overview) tags, [Facebook OpenGraph](https://developers.facebook.com/docs/sharing/opengraph) tags, [Humans.txt](http://humanstxt.org) authorship accreditation, and as well as HTML meta tags.
+In order to specify your review plugin just go to SEOmatic > Settings then:
+- Set the category of products
+- Set the Review plugin's handle (for example: for our reviewscoukcraft plugin the handle is `reviewsCoUkCraft` more information about plugin handle [here](https://craftcms.com/docs/plugins/setting-things-up#pick-a-name-and-handle))
+- Set the URI to use in order to fetch products reviews (below you can specify a different URL for `aggregate ratings` about Services)
+- (optional) You can specify the audienceType from [Audience](http://schema.org/Audience) that will be used for both Product and Services.
+- (optional) You can specify the default [AreaServed](http://schema.org/areaServed) for your Services
+- (optional) You can specify the default [Provider Mobility](http://schema.org/providerMobility) for your Services.
 
-The general philosophy is that SEO Site Meta can be overridden by SEO Template Meta, which can be overridden by SEO Entry Meta, which can be overridden by dynamic SEO Twig tags.
+## Specify Offers displayed in your Products/Services pages in JSON-LD
 
-In this way, the SEO Meta tags on your site cascade, so that they are globally available, but also can be customized in a very granular way.
+In order to specify the different offers you have in your Product/Service page:
+- Go to Settings > Fields > Product > New Field
+- In 'Name' typed 'Offers'
+- In 'Handle' typed 'productOffers'.
+- Choose 'Matrix' as your Field Type
+- Then click on 'New block type'
+- In Name typed 'Offer'
+- Then click on 'New Field'
+- In Name typed 'Offer Name'
+- Then click on 'New Field'
+- In Name typed 'Offer Price'
+- Click 'Save' on the top right corner
+- Then go to Settings > Sections > and click on 'Edit entry type' related to 'Product Pages' and add the 'OFFERS' field to Product fields. [More informations about entry types here](https://craftcms.com/features/entry-types)
+- Click 'Save' on the top right corner
 
-SEOmatic populates your templates with SEO Meta in the same way that Craft populates your templates with `entry` variables, with a similar level of freedom and flexibility in terms of how you utilize them.
+Now if you edit your products entries via Entries > Product Pages > (edit any entry) you can add as much as you want.
 
-SEOmatic also caches each unique SEO Meta request so that your website performance is minimally impacted by the rich SEO Meta tags provided.
+## Specify that your Product is a Service in JSON-LD
 
-## Documentation
+In order to specify that a product is a Service:
+- Go to Settings > Fields > Product > New Field
+- In 'Name' typed 'Is a Service?'
+- In 'Handle' typed 'productIsService'.
+- Choose 'Radio Buttons' as your Field Type
+- Then click on Add on Option
+- In the first Option use 'Yes' as a label and 1 as a value
+- In the second Option use 'No' as a label and 0 as a value (tick the 'default?' checkbox for this one).
+- Click 'Save' on the top right corner
+- Then go to Settings > Sections > and click on 'Edit entry type' related to 'Product Pages' and add the 'IS A SERVICE?' field to Product fields. [More informations about entry types here](https://craftcms.com/features/entry-types)
+- Click 'Save' on the top right corner
 
-Please read the complete documentation in the [SEOmatic Wiki](https://github.com/nystudio107/seomatic/wiki) or read the `DOCS.md` file in the repo.
-
-To better understand how all of this metadata benefits your website, please read: [Promote Your Content with Structured Data Markup](https://developers.google.com/structured-data/)
-
-If you need to redirect from legacy URLs to preserve SEO value when rebuilding & restructuring a website, check out the [Retour Plugin](https://github.com/nystudio107/retour)
-
-## Roadmap
-
-Some things to do, and ideas for potential features:
-
-* [bug] Get the Template Metas implemented with full `locale` support, so the settings can all be per-locale based
-* [bug] Enforce *required fields on the various settings pages in the Admin CP by doing proper validation
-* [bug] The `foundingDate` fields probably should be dateTimeField types on the Settings pages
-* [feature] Provide SiteMap functionality.  Yes, it's SEO-related, but seems like it might be better to keep SEOmatic focused (?)
-* [feature] Allow people to choose individual fields to pull from inside of Matrix and Neo blocks
-
-Brought to you by [nystudio107](http://nystudio107.com)
+## TODO
+- Allow overiding reviews URI per product.
